@@ -241,7 +241,7 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/et_guardian_parent"
+                    android:id="@+id/et_guardian_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -298,6 +298,7 @@
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_register_next"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@color/colorPrimary"
