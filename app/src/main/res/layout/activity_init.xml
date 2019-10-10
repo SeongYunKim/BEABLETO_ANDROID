@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/tv_appname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="80dp"
+            android:text="@string/app_name"
+            android:textColor="@color/colorPrimaryGray"
+            android:textSize="37sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_welcome1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BEABLETO에 오신것을 환영합니다."
+            android:textColor="@color/colorPrimaryGray"
+            android:textSize="20sp"
+            app:layout_constraintLeft_toLeftOf="@id/tv_appname"
+            app:layout_constraintTop_toBottomOf="@id/tv_appname" />
+
+        <TextView
+            android:id="@+id/tv_welcome2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="장애인과 비장애인이 하나가되어\n장애인의 교통 장벽을 없애는 그날까지 노력하겠습니다."
+            android:textColor="@color/colorPrimaryGray"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/tv_welcome1"
+            app:layout_constraintTop_toBottomOf="@id/tv_welcome1" />
+
+        <LinearLayout
+            android:layout_width="363dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/round"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="42dp"
+                android:layout_marginRight="24dp"
+                android:background="@drawable/round"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="로그인"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginBottom="42dp"
+                android:background="@drawable/round"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="회원가입"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
