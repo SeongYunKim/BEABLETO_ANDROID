@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class RequestRegister(
     @SerializedName("name")
     var name: String,
-    @SerializedName("user_id")
+    @SerializedName("email")
     var user_id: String,
     @SerializedName("password")
     var password: String,
