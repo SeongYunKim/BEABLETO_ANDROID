@@ -19,7 +19,7 @@
                 android:layout_height="56dp">
 
                 <ImageView
-                    android:id="@+id/btn_cancel"
+                    android:id="@+id/btn_register_cancel"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_centerVertical="true"
@@ -31,7 +31,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="12dp"
-                    android:layout_toRightOf="@id/btn_cancel"
+                    android:layout_toRightOf="@id/btn_register_cancel"
                     android:text="회원가입"
                     android:textColor="@color/colorBlack"
                     android:textSize="20sp" />
@@ -138,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="30dp"
-                    android:hint="5~20자의 영문 소문자, 숫자"
+                    android:hint="이메일"
                     android:textSize="16sp"
                     android:theme="@style/EditTextStyle" />
             </LinearLayout>
@@ -166,6 +166,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="30dp"
                     android:hint="8~16자의 영문 대 소문자, 숫자"
+                    android:inputType="textPassword"
                     android:textSize="16sp"
                     android:theme="@style/EditTextStyle" />
             </LinearLayout>
@@ -193,6 +194,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="30dp"
                     android:hint="비밀번호 재입력"
+                    android:inputType="textPassword"
                     android:textSize="16sp"
                     android:theme="@style/EditTextStyle" />
             </LinearLayout>
@@ -220,6 +222,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="30dp"
                     android:hint="- 없이 작성"
+                    android:inputType="number"
                     android:textSize="16sp"
                     android:theme="@style/EditTextStyle" />
             </LinearLayout>
@@ -247,6 +250,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="30dp"
                     android:hint="- 없이 작성"
+                    android:inputType="number"
                     android:textSize="16sp"
                     android:theme="@style/EditTextStyle" />
             </LinearLayout>
@@ -301,7 +305,7 @@
             android:id="@+id/btn_register_next"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/register_next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent">
