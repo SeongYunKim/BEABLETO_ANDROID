@@ -57,8 +57,8 @@ class RegisterActivity : AppCompatActivity() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
                                 Log.d("list_data", it.toString())
-                                val intent = Intent(this, LoginActivity::class.java)
-                                startActivity(intent)
+                                //val intent = Intent(this, LoginActivity::class.java)
+                                //startActivity(intent)
                                 finish()
                             }, {
                                 Log.d("list_data", Log.getStackTraceString(it))

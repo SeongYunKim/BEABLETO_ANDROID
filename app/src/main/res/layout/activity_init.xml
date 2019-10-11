@@ -43,43 +43,104 @@
             app:layout_constraintTop_toBottomOf="@id/tv_welcome1" />
 
         <LinearLayout
-            android:layout_width="363dp"
+            android:id="@+id/rl_init"
+            android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:background="@drawable/round"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent">
 
-            <Button
-                android:id="@+id/btn_login"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="42dp"
-                android:layout_marginRight="24dp"
-                android:background="@drawable/round"
-                android:backgroundTint="@color/colorPrimary"
-                android:text="로그인"
-                android:textColor="@color/colorWhite"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_register"
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="20dp"
+                    android:text="아이디"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/et_login_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="30dp"
+                    android:hint="이메일"
+                    android:textSize="16sp"
+                    android:theme="@style/EditTextStyle" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginRight="24dp"
-                android:layout_marginBottom="42dp"
-                android:background="@drawable/round"
-                android:backgroundTint="@color/colorPrimary"
-                android:text="회원가입"
-                android:textColor="@color/colorWhite"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="30dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="20dp"
+                    android:text="비밀번호"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/et_login_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="30dp"
+                    android:hint="8~16자의 영문 대 소문자, 숫자"
+                    android:inputType="textPassword"
+                    android:textSize="16sp"
+                    android:theme="@style/EditTextStyle" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <Button
+                    android:id="@+id/btn_login"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/round"
+                    android:layout_marginRight="25dp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:text="로그인"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_register"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/round"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:text="회원가입"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
