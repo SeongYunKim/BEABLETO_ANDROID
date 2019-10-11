@@ -16,8 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_init.*
 import kotlinx.android.synthetic.main.activity_register.*
-
-// TODO 아이디, 비밀번호 작성 확인
+import retrofit2.HttpException
 
 class InitActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,16 +36,20 @@ class InitActivity : AppCompatActivity() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ response ->
                         Log.d("Success", response.token)
-                        // TODO 로그인 성공 코드
-                        //if (response.code == 500) {
                             SharedPreferenceController.setAuthorization(this@InitActivity, response.token)
                             Toast.makeText(this@InitActivity, SharedPreferenceController.getAuthorization(this), Toast.LENGTH_LONG).show()
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
                             //TODO MutableLiveData 처리
                             //isLogin.value = true
-                        //}
-                    }, {
-                        //TODO 실패시 케이스 분류
-                        Log.d("list_data", Log.getStackTraceString(it))
+                    }, { except ->
+                        Log.d("Error", except.message)
+                        if (except is HttpException){
+                            if(except.code() == 400){
+                                Toast.makeText(this@InitActivity, "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     })
             }
             else {
