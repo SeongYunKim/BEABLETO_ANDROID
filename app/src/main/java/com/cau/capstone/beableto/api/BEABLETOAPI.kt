@@ -10,9 +10,11 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface BEABLETOAPI {
-    @POST("/user/")
+    @POST("/accounts/signup/")
     fun requestSignUp(@Body body: RequestRegister) : Completable
 
-    @POST("/user/login")
+    @POST("/accounts/token/")
     fun requestLogIn(@Body body: RequestLogIn) : Single<ResponseLogIn>
+
+    //로그아웃 "/accounts/logout/"
 }
