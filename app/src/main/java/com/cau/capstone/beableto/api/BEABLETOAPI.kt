@@ -1,12 +1,11 @@
 package com.cau.capstone.beableto.api
 
-import com.cau.capstone.beableto.data.RequestLogIn
-import com.cau.capstone.beableto.data.RequestRegister
-import com.cau.capstone.beableto.data.ResponseLogIn
-import com.cau.capstone.beableto.data.ResponseRegister
+import com.cau.capstone.beableto.data.*
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface BEABLETOAPI {
@@ -15,6 +14,9 @@ interface BEABLETOAPI {
 
     @POST("/accounts/token/")
     fun requestLogIn(@Body body: RequestLogIn) : Single<ResponseLogIn>
+
+    @GET("/qtest/hello/")
+    fun test(@Header("Authorization") authorization : String?): Single<ResponseTest>
 
     //로그아웃 "/accounts/logout/"
 }

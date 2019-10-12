@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import com.cau.capstone.beableto.repository.SharedPreferenceController
 
 class SplashActivity : AppCompatActivity() {
 
@@ -12,8 +13,14 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         Handler().postDelayed({
-            val intent = Intent(this, InitActivity::class.java)
-            startActivity(intent)
+            if(SharedPreferenceController.getIsLogin(this@SplashActivity)){
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+            else{
+                val intent = Intent(this, InitActivity::class.java)
+                startActivity(intent)
+            }
             finish()
         }, 1500)
 
