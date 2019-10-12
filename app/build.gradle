@@ -40,6 +40,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     kapt "com.android.databinding:compiler:5.4.1"
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0' // 레트로핏 라이브러리
