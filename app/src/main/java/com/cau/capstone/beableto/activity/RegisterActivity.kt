@@ -17,6 +17,7 @@ import com.cau.capstone.beableto.repository.UserRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_register.*
+import retrofit2.HttpException
 
 //TODO 아이디 중복 확인
 //TODO 필수 작성 항목 UI 표현
@@ -57,12 +58,15 @@ class RegisterActivity : AppCompatActivity() {
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({
-                                Log.d("list_data", it.toString())
-                                //val intent = Intent(this, LoginActivity::class.java)
-                                //startActivity(intent)
+                                Log.d("Register Success", it.toString())
                                 finish()
-                            }, {
-                                Log.d("list_data", Log.getStackTraceString(it))
+                            }, { except ->
+                                Log.d("Register Error", except.message)
+                                if (except is HttpException){
+                                    if(except.code() == 400){
+                                        Toast.makeText(this@RegisterActivity, "중복된 아이디(이메일)이 존재합니다.", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             })
                     }
                     else{

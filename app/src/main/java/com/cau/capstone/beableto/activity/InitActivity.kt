@@ -35,7 +35,7 @@ class InitActivity : AppCompatActivity() {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ response ->
-                        Log.d("Success", response.token)
+                        Log.d("Login Success", response.token)
                             SharedPreferenceController.setAuthorization(this@InitActivity, response.token)
                             Toast.makeText(this@InitActivity, SharedPreferenceController.getAuthorization(this), Toast.LENGTH_LONG).show()
                             val intent = Intent(this, MainActivity::class.java)
@@ -44,7 +44,7 @@ class InitActivity : AppCompatActivity() {
                             //TODO MutableLiveData 처리
                             //isLogin.value = true
                     }, { except ->
-                        Log.d("Error", except.message)
+                        Log.d("Login Error", except.message)
                         if (except is HttpException){
                             if(except.code() == 400){
                                 Toast.makeText(this@InitActivity, "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show()
