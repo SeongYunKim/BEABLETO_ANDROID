@@ -13,12 +13,12 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         Handler().postDelayed({
-            if(SharedPreferenceController.getIsLogin(this@SplashActivity)){
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-            }
-            else{
+            if(SharedPreferenceController.getAuthorization(this@SplashActivity) == "") {
                 val intent = Intent(this, InitActivity::class.java)
+                startActivity(intent)
+           }
+            else{
+               val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
             finish()
