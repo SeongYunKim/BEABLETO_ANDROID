@@ -51,7 +51,7 @@
                     android:layout_width="350dp"
                     android:layout_height="200dp"
                     android:layout_centerInParent="true"
-                    android:background="@drawable/default_imageview"/>
+                    android:background="@drawable/default_imageview" />
 
                 <!--
                 <Button
@@ -449,6 +449,7 @@
             app:layout_constraintRight_toRightOf="parent">
 
             <LinearLayout
+                android:id="@+id/layout_register_location"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
