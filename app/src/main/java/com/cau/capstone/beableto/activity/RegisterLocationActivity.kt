@@ -33,10 +33,24 @@ class RegisterLocationActivity : AppCompatActivity() {
     private var string_filePath: String? = null
     private val PICK_IMAGE_REQUEST = 1234
     private val PERMISSION_CODE = 4321
+    private var latitude: Float? = null
+    private var longitude: Float? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_location)
+        tv_slope_none.isSelected = true
+        view_slope_none.isSelected = true
+        layout_slope_none.isSelected = true
+        tv_auto_door.isSelected = true
+        view_auto_door.isSelected = true
+        layout_auto_door.isSelected = true
+        tv_elevator.isSelected = true
+        view_elevator.isSelected = true
+        layout_elevator.isSelected = true
+        tv_toilet.isSelected = true
+        view_toilet.isSelected = true
+        layout_toilet.isSelected = true
 
         layout_slope_none.setOnClickListener {
             tv_slope_none.isSelected = true
@@ -148,64 +162,57 @@ class RegisterLocationActivity : AppCompatActivity() {
                     PICK_IMAGE_REQUEST
                 )
             }
-
-            /*
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_DENIED){
-                    //permission denied
-                    val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE);
-                    //show popup to request runtime permission
-                    requestPermissions(permissions, PERMISSION_CODE);
-                }
-                else {
-                    //permission already granted
-                    pickImageFromGallery();
-                }
-            }
-            else {
-                //system OS is < Marshmallow
-                pickImageFromGallery();
-            }
-           */
         }
 
         cb_use_photo.setOnClickListener {
-            var latitude : Float
-            var longtitude : Float
             try {
-                val inputStream = getContentResolver().openInputStream(filePath!!)
-                val exif = ExifInterface(inputStream!!)
-                //Exif GPS 정보를 GeoPoint로 변환
-                val attrLatitude : String? = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
-                val attrLatitude_REF : String? = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
-                val attrLongtitute : String? = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
-                val attrLongtitute_REF : String? = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
-                if((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)){
-                    if(attrLatitude_REF == "N")
-                        latitude = convertToDegree(attrLatitude)
-                    else
-                        latitude = 0 - convertToDegree(attrLatitude)
+                if (filePath != null) {
+                    val inputStream = getContentResolver().openInputStream(filePath!!)
+                    val exif = ExifInterface(inputStream!!)
+                    //Exif GPS 정보를 GeoPoint로 변환
+                    val attrLatitude: String? = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
+                    val attrLatitude_REF: String? =
+                        exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+                    val attrLongtitute: String? = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
+                    val attrLongtitute_REF: String? =
+                        exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+                    if ((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)) {
+                        if (attrLatitude_REF == "N")
+                            latitude = convertToDegree(attrLatitude)
+                        else
+                            latitude = 0 - convertToDegree(attrLatitude)
 
-                    if(attrLongtitute_REF == "E")
-                        longtitude = convertToDegree(attrLongtitute)
-                    else
-                        longtitude = 0 - convertToDegree(attrLongtitute)
+                        if (attrLongtitute_REF == "E")
+                            longitude = convertToDegree(attrLongtitute)
+                        else
+                            longitude = 0 - convertToDegree(attrLongtitute)
 
-                    Toast.makeText(this@RegisterLocationActivity, attrLatitude.toString(), Toast.LENGTH_SHORT).show()
-                    Log.d("GeoPoint", latitude.toString() + ", "+ longtitude.toString())
+                        Toast.makeText(
+                            this@RegisterLocationActivity,
+                            latitude.toString() + ", " + longitude.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.d("GeoPoint", latitude.toString() + ", " + longitude.toString())
+                    }
+                } else {
+                    Toast.makeText(
+                        this@RegisterLocationActivity,
+                        "등록된 사진이 없습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
 
-
         layout_register_location.setOnClickListener {
-
-            val file = File(string_filePath)
-            val fileReqBody = RequestBody.create(MediaType.parse("image/*"), file)
-            val part = MultipartBody.Part.createFormData("image", file.name, fileReqBody)
+            var part : MultipartBody.Part? = null
+            if(string_filePath != null){
+                val file = File(string_filePath)
+                val fileReqBody = RequestBody.create(MediaType.parse("image/*"), file)
+                part = MultipartBody.Part.createFormData("image", file.name, fileReqBody)
+            }
 
             var slope: Int = 0
             var auto_door: Boolean = true
@@ -221,17 +228,16 @@ class RegisterLocationActivity : AppCompatActivity() {
             else if (layout_no_elevator.isSelected) elevator = false
             if (layout_toilet.isSelected) toilet = true
             else if (layout_no_toilet.isSelected) toilet = false;
-            val x = 1.1F
-            val y = 2.2F
 
+            //필수 항목 Validate
             NetworkCore.getNetworkCore<BEABLETOAPI>()
                 .requestRegisterLocation(
                     SharedPreferenceController.getAuthorization(this@RegisterLocationActivity),
                     part,
                     "208관",
                     "흑석동 84",
-                    x,
-                    y,
+                    latitude!!,
+                    longitude!!,
                     slope,
                     auto_door,
                     elevator,
@@ -251,14 +257,17 @@ class RegisterLocationActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
             filePath = data.data
-        string_filePath = getPathFromUri(data!!.data)
-        try {
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
-            iv_register_location!!.setImageBitmap(bitmap)
-        } catch (e: IOException) {
-            e.printStackTrace()
+            string_filePath = getPathFromUri(data!!.data)
+            try {
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                iv_register_location!!.setImageBitmap(bitmap)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } else {
+            //사진 등록하다가 말았을 경우
         }
     }
 
@@ -295,24 +304,24 @@ class RegisterLocationActivity : AppCompatActivity() {
         }
     }
 
-    fun convertToDegree(stringDMS : String) : Float{
-        var result : Float?
-        val DMS : List<String> = stringDMS.split(",")
+    fun convertToDegree(stringDMS: String): Float {
+        var result: Float?
+        val DMS: List<String> = stringDMS.split(",")
 
-        val stringD : List<String> = DMS[0].split("/")
-        val d0 : Double = stringD[0].toDouble()
-        val d1 : Double = stringD[1].toDouble()
-        val floatD : Double = d0 / d1
+        val stringD: List<String> = DMS[0].split("/")
+        val d0: Double = stringD[0].toDouble()
+        val d1: Double = stringD[1].toDouble()
+        val floatD: Double = d0 / d1
 
-        val stringM : List<String> = DMS[1].split("/")
-        val m0 : Double = stringM[0].toDouble()
-        val m1 : Double = stringM[1].toDouble()
-        val floatM : Double = m0 / m1
+        val stringM: List<String> = DMS[1].split("/")
+        val m0: Double = stringM[0].toDouble()
+        val m1: Double = stringM[1].toDouble()
+        val floatM: Double = m0 / m1
 
-        val stringS : List<String> = DMS[2].split("/")
-        val s0 : Double = stringS[0].toDouble()
-        val s1 : Double = stringS[1].toDouble()
-        val floatS : Double = s0 / s1
+        val stringS: List<String> = DMS[2].split("/")
+        val s0: Double = stringS[0].toDouble()
+        val s1: Double = stringS[1].toDouble()
+        val floatS: Double = s0 / s1
 
         result = (floatD + (floatM / 60) + (floatS / 3600)).toFloat()
         return result
