@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -26,6 +28,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
 import java.io.IOException
+import java.util.*
+
+//TODO 입력 항목 정리(건물이냐? 점포냐? 필수 입력 사항?)
 
 class RegisterLocationActivity : AppCompatActivity() {
 
@@ -166,40 +171,57 @@ class RegisterLocationActivity : AppCompatActivity() {
 
         cb_use_photo.setOnClickListener {
             try {
-                if (filePath != null) {
-                    val inputStream = getContentResolver().openInputStream(filePath!!)
-                    val exif = ExifInterface(inputStream!!)
-                    //Exif GPS 정보를 GeoPoint로 변환
-                    val attrLatitude: String? = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
-                    val attrLatitude_REF: String? =
-                        exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
-                    val attrLongtitute: String? = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
-                    val attrLongtitute_REF: String? =
-                        exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
-                    if ((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)) {
-                        if (attrLatitude_REF == "N")
-                            latitude = convertToDegree(attrLatitude)
-                        else
-                            latitude = 0 - convertToDegree(attrLatitude)
+                if (cb_use_photo.isChecked) {
+                    if (filePath != null) {
+                        val inputStream = getContentResolver().openInputStream(filePath!!)
+                        val exif = ExifInterface(inputStream!!)
+                        val address: String?
+                        //Exif GPS 정보를 GeoPoint로 변환
+                        val attrLatitude: String? =
+                            exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
+                        val attrLatitude_REF: String? =
+                            exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+                        val attrLongtitute: String? =
+                            exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
+                        val attrLongtitute_REF: String? =
+                            exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+                        if ((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)) {
+                            if (attrLatitude_REF == "N")
+                                latitude = convertToDegree(attrLatitude)
+                            else
+                                latitude = 0 - convertToDegree(attrLatitude)
 
-                        if (attrLongtitute_REF == "E")
-                            longitude = convertToDegree(attrLongtitute)
-                        else
-                            longitude = 0 - convertToDegree(attrLongtitute)
+                            if (attrLongtitute_REF == "E")
+                                longitude = convertToDegree(attrLongtitute)
+                            else
+                                longitude = 0 - convertToDegree(attrLongtitute)
 
+                            address = getAddress(latitude!!, longitude!!)
+                            et_address.setText(address)
+                            Toast.makeText(
+                                this@RegisterLocationActivity,
+                                address,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.d("GeoPoint", latitude.toString() + ", " + longitude.toString())
+                        } else {
+                            Toast.makeText(
+                                this@RegisterLocationActivity,
+                                "사진에 위치 정보가 없습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
                         Toast.makeText(
                             this@RegisterLocationActivity,
-                            latitude.toString() + ", " + longitude.toString(),
+                            "등록된 사진이 없습니다.",
                             Toast.LENGTH_SHORT
                         ).show()
-                        Log.d("GeoPoint", latitude.toString() + ", " + longitude.toString())
                     }
                 } else {
-                    Toast.makeText(
-                        this@RegisterLocationActivity,
-                        "등록된 사진이 없습니다.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    latitude = null
+                    longitude = null
+                    et_address.text = null
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -207,17 +229,17 @@ class RegisterLocationActivity : AppCompatActivity() {
         }
 
         layout_register_location.setOnClickListener {
-            var part : MultipartBody.Part? = null
-            if(string_filePath != null){
+            var part: MultipartBody.Part? = null
+            if (string_filePath != null) {
                 val file = File(string_filePath)
                 val fileReqBody = RequestBody.create(MediaType.parse("image/*"), file)
                 part = MultipartBody.Part.createFormData("image", file.name, fileReqBody)
             }
 
-            var slope: Int = 0
-            var auto_door: Boolean = true
-            var elevator: Boolean = true
-            var toilet: Boolean = true
+            var slope = 0
+            var auto_door = true
+            var elevator = true
+            var toilet = true
 
             if (layout_slope_none.isSelected) slope = 0;
             else if (layout_slope_gentle.isSelected) slope = 1;
@@ -234,8 +256,8 @@ class RegisterLocationActivity : AppCompatActivity() {
                 .requestRegisterLocation(
                     SharedPreferenceController.getAuthorization(this@RegisterLocationActivity),
                     part,
-                    "208관",
-                    "흑석동 84",
+                    "영기집",
+                    et_address.text.toString(),
                     latitude!!,
                     longitude!!,
                     slope,
@@ -276,7 +298,7 @@ class RegisterLocationActivity : AppCompatActivity() {
         val filePathColumn: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
 
         if (Build.VERSION.SDK_INT > 26) {
-            var path: String = ""
+            var path = ""
             val fileId: String = DocumentsContract.getDocumentId(uri)
             val id: String = fileId.split(":")[1]
             val idString: Array<String> = arrayOf(id)
@@ -325,5 +347,30 @@ class RegisterLocationActivity : AppCompatActivity() {
 
         result = (floatD + (floatM / 60) + (floatS / 3600)).toFloat()
         return result
+    }
+
+    fun getAddress(latitude: Float, longitude: Float): String {
+        val geoCoder = Geocoder(this, Locale.KOREAN)
+        var photoAddress = ""
+        try {
+            val addresses: List<Address> =
+                geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 1)
+            if (addresses.isNotEmpty()) {
+                val mAddress: Address = addresses[0]
+                var buf: String?
+                var iterator = 0
+                buf = mAddress.getAddressLine(iterator)
+                while (buf != null) {
+                    if (iterator == 0)
+                        photoAddress += buf
+                    iterator += 1
+                    buf = mAddress.getAddressLine(iterator)
+                }
+            }
+            return photoAddress
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return photoAddress
     }
 }
