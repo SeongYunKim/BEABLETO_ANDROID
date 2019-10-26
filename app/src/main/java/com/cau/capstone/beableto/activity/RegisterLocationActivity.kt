@@ -20,6 +20,8 @@ import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.repository.SharedPreferenceController
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_register_location.*
@@ -28,7 +30,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 //TODO 입력 항목 정리(건물이냐? 점포냐? 필수 입력 사항?)
 
@@ -37,6 +38,7 @@ class RegisterLocationActivity : AppCompatActivity() {
     private var filePath: Uri? = null
     private var string_filePath: String? = null
     private val PICK_IMAGE_REQUEST = 1234
+    private val GET_IMAGE_ADDRESS_REQUEST = 5678
     private val PERMISSION_CODE = 4321
     private var latitude: Float? = null
     private var longitude: Float? = null
@@ -147,6 +149,10 @@ class RegisterLocationActivity : AppCompatActivity() {
             layout_no_toilet.isSelected = true
         }
 
+        btn_add_location_cancel.setOnClickListener {
+            finish()
+        }
+
         iv_register_location.setOnClickListener {
             val intent = Intent()
             intent.type = "image/*"
@@ -196,14 +202,15 @@ class RegisterLocationActivity : AppCompatActivity() {
                             else
                                 longitude = 0 - convertToDegree(attrLongtitute)
 
-                            address = getAddress(latitude!!, longitude!!)
-                            et_address.setText(address)
-                            Toast.makeText(
-                                this@RegisterLocationActivity,
-                                address,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Log.d("GeoPoint", latitude.toString() + ", " + longitude.toString())
+                            //address = getAddress(latitude!!, longitude!!)
+                            //et_address.setText(address)
+                            //Log.d("Center", latitude.toString() + " " + longitude.toString())
+                            //Log.d("Center", address)
+                            val intent = Intent(this, ModifyLocationActivity::class.java)
+                            intent.putExtra("latitude", latitude!!)
+                            intent.putExtra("longitude", longitude!!)
+                            //intent.putExtra("address", address)
+                            startActivityForResult(intent, GET_IMAGE_ADDRESS_REQUEST)
                         } else {
                             Toast.makeText(
                                 this@RegisterLocationActivity,
@@ -270,7 +277,8 @@ class RegisterLocationActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
                     Log.d("L_Register Success", response.message)
-                    Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()
+                    finish()
+                    //Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()
                 }, {
                     Log.d("L_Register Fail", Log.getStackTraceString(it))
                 })
@@ -290,6 +298,18 @@ class RegisterLocationActivity : AppCompatActivity() {
             }
         } else {
             //사진 등록하다가 말았을 경우
+        }
+
+        if (requestCode == GET_IMAGE_ADDRESS_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
+                latitude = data.getFloatExtra("latitude", 0.0F)
+                longitude = data.getFloatExtra("longitude", 0.0F)
+            }
+            if(data.hasExtra("address")){
+                et_address.setText(data.getStringExtra("address"))
+            }
+        } else {
+            //위치 등록하다가 말았을 경우
         }
     }
 
@@ -347,30 +367,5 @@ class RegisterLocationActivity : AppCompatActivity() {
 
         result = (floatD + (floatM / 60) + (floatS / 3600)).toFloat()
         return result
-    }
-
-    fun getAddress(latitude: Float, longitude: Float): String {
-        val geoCoder = Geocoder(this, Locale.KOREAN)
-        var photoAddress = ""
-        try {
-            val addresses: List<Address> =
-                geoCoder.getFromLocation(latitude.toDouble(), longitude.toDouble(), 1)
-            if (addresses.isNotEmpty()) {
-                val mAddress: Address = addresses[0]
-                var buf: String?
-                var iterator = 0
-                buf = mAddress.getAddressLine(iterator)
-                while (buf != null) {
-                    if (iterator == 0)
-                        photoAddress += buf
-                    iterator += 1
-                    buf = mAddress.getAddressLine(iterator)
-                }
-            }
-            return photoAddress
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return photoAddress
     }
 }

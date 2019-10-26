@@ -21,6 +21,7 @@
         <activity android:name=".InitActivity" />
         <activity android:name=".RegisterActivity"/>
         <activity android:name=".activity.RegisterLocationActivity"/>
+        <activity android:name=".activity.ModifyLocationActivity"/>
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait">
