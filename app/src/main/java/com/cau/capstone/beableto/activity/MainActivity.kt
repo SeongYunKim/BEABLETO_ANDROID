@@ -5,10 +5,10 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import com.cau.capstone.beableto.activity.RegisterLocationActivity
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
+import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
         /*
         NetworkCore.getNetworkCore<BEABLETOAPI>()
             .test2(
@@ -60,14 +61,61 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             val intent = Intent(this, RegisterLocationActivity::class.java)
             startActivity(intent)
         }
+
+        temp_marker.setOnClickListener {
+            getMarkerInfo(getMapBound())
+        }
     }
 
-    override fun onMapReady(googleMap: GoogleMap){
+    override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
         val SEOUL = LatLng(37.502777, 126.956665)
+        val BUSAN = LatLng(37.503779, 126.956665)
+        val JOT = LatLng(37.502777, 126.953667)
         mMap.addMarker(MarkerOptions().position(SEOUL).title("Marker in Seoul"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(SEOUL))
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10F))
+        mMap.addMarker(MarkerOptions().position(BUSAN).title("Marker in Busan"))
+        mMap.addMarker(MarkerOptions().position(JOT).title("Marker in Jot"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 18.0F))
+        //val builder = LatLngBounds.Builder()
+        //builder.include(SEOUL)
+        //builder.include(BUSAN)
+        //builder.include(JOT)
+        //var bounds = builder.build()
+        mapLoadedCallBack()
+    }
+
+    private fun mapLoadedCallBack() {
+        mMap.setOnMapLoadedCallback {
+            getMarkerInfo(getMapBound())
+        }
+    }
+
+    private fun getMapBound(): Pair<LatLng, LatLng> {
+        val bounds = mMap.projection.visibleRegion.latLngBounds
+        val northEast = bounds.northeast
+        val southWest = bounds.southwest
+        return Pair(northEast, southWest)
+    }
+
+    private fun getMarkerInfo(pair: Pair<LatLng, LatLng>) {
+
+        var requestMarkerOnMap = RequestMarkerOnMap(
+            pair.first.latitude.toString(),
+            pair.first.longitude.toString(),
+            pair.second.latitude.toString(),
+            pair.second.longitude.toString()
+        )
+
+        NetworkCore.getNetworkCore<BEABLETOAPI>()
+            .requestMarkerOnMap(
+                SharedPreferenceController.getAuthorization(this@MainActivity), requestMarkerOnMap
+            )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                Log.d("bound3", response.markers.toString())
+            }, {
+                Log.d("Marker_Error", Log.getStackTraceString(it))
+            })
     }
 }

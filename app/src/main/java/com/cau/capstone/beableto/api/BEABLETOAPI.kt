@@ -29,6 +29,10 @@ interface BEABLETOAPI {
                                 @Part("comment") comment: String
                                 ) : Single<ResponseRegisterLocation>
 
+    @POST("/information/getmarker/")
+    fun requestMarkerOnMap(@Header("Authorization") authorization: String?,
+                           @Body body: RequestMarkerOnMap) : Single<ResponseMarkerOnMap>
+
     @GET("/qtest/hello/")
     fun test(@Header("Authorization") authorization : String?): Single<ResponseTest>
 

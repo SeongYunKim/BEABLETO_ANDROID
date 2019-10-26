@@ -36,6 +36,14 @@
                 android:layout_marginLeft="50dp"
                 android:text="위치 등록" />
 
+            <Button
+                android:id="@+id/temp_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="50dp"
+                android:text="마커" />
+
         </LinearLayout>
 
         <fragment
