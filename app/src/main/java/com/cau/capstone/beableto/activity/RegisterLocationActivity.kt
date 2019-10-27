@@ -4,7 +4,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
@@ -271,14 +273,24 @@ class RegisterLocationActivity : AppCompatActivity() {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
             filePath = data.data
             string_filePath = getPathFromUri(data!!.data)
+            val inputStream = getContentResolver().openInputStream(filePath!!)
+            val exif = ExifInterface(inputStream!!)
+
             try {
-                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                val orientation : Int? = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
+                if(orientation != -1){
+                    when(orientation){
+                        ExifInterface.ORIENTATION_ROTATE_90 -> bitmap = getRotatedBitmap(bitmap, 90.0F)
+                        ExifInterface.ORIENTATION_ROTATE_180 -> bitmap = getRotatedBitmap(bitmap, 18.0F)
+                        ExifInterface.ORIENTATION_ROTATE_270 -> bitmap = getRotatedBitmap(bitmap, 270.0F)
+                    }
+                }
                 iv_register_location!!.setImageBitmap(bitmap)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-            val inputStream = getContentResolver().openInputStream(filePath!!)
-            val exif = ExifInterface(inputStream!!)
+
             //Exif GPS 정보를 GeoPoint로 변환
             val attrLatitude: String? =
                 exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
@@ -353,6 +365,15 @@ class RegisterLocationActivity : AppCompatActivity() {
             cursor.close()
             return path
         }
+    }
+
+    fun getRotatedBitmap(bitmap: Bitmap?, degree: Float) : Bitmap? {
+        if(bitmap == null) return null;
+        if(degree == 0.0F) return bitmap
+
+        val m = Matrix()
+        m.setRotate(degree, bitmap.width.toFloat() / 2, bitmap.height.toFloat() /2)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true)
     }
 
     fun convertToDegree(stringDMS: String): Float {
