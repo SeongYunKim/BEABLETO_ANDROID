@@ -13,29 +13,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/temp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Init" />
-
             <Button
                 android:id="@+id/temp_logout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="50dp"
                 android:text="로그 아웃" />
 
-            <Button
-                android:id="@+id/temp_register_location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="50dp"
-                android:text="위치 등록" />
-
+            <!--
             <Button
                 android:id="@+id/temp_marker"
                 android:layout_width="wrap_content"
@@ -43,13 +28,61 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="50dp"
                 android:text="마커" />
+                -->
 
         </LinearLayout>
 
-        <fragment
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"/>
+            android:layout_height="match_parent">
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_below="@+id/map"
+                android:background="?android:attr/listDivider" />
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@id/map"
+                android:background="?android:attr/listDivider" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/main_register_location"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:layout_above="@id/divider2"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_toLeftOf="@id/divider3"
+                android:background="@drawable/circle"
+                android:backgroundTint="@color/colorPrimary">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:text="+"
+                    android:textColor="@color/colorPrimaryGray"
+                    android:textSize="50sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </RelativeLayout>
+
+
     </LinearLayout>
 </layout>

@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        temp.text = Build.VERSION.SDK_INT.toString()
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -47,14 +46,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        temp_register_location.setOnClickListener {
+        main_register_location.setOnClickListener {
             val intent = Intent(this, RegisterLocationActivity::class.java)
             startActivityForResult(intent, GET_REGISTER_LOCATION)
         }
 
+        /*
         temp_marker.setOnClickListener {
             getMarkerInfo(getMapBound())
         }
+        */
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -75,12 +76,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val INIT = LatLng(37.502777, 126.956665)
-        mMap.addMarker(
-            MarkerOptions().position(INIT).title("중앙대학교 208관").snippet("진입로 경사: 완만\n엘리베이터: 있음\n장애인 화장실: 있음").icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-            )
-        )
+        val INIT = LatLng(37.50352, 126.95706)
+        //mMap.addMarker(
+        //    MarkerOptions().position(INIT).title("중앙대학교 208관").snippet("진입로 경사: 완만\n엘리베이터: 있음\n장애인 화장실: 있음").icon(
+        //        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+        //    )
+        //)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
         mapLoadedCallBack()
     }
