@@ -1,10 +1,12 @@
 package com.cau.capstone.beableto
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.activity.RegisterLocationActivity
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
@@ -15,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,6 +27,7 @@ import kotlinx.android.synthetic.main.activity_modify_location.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private val GET_REGISTER_LOCATION = 9012
     private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,8 +48,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         temp_register_location.setOnClickListener {
+            Log.d("MainData", "0000")
             val intent = Intent(this, RegisterLocationActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, GET_REGISTER_LOCATION)
         }
 
         temp_marker.setOnClickListener {
@@ -53,18 +58,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        var latitude : Float?
+        var longitude : Float?
+        Log.d("MainData", "1111")
+        if (requestCode == GET_REGISTER_LOCATION && resultCode == Activity.RESULT_OK && data != null) {
+            Log.d("MainData", "2222")
+            if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
+                Log.d("MainData", "3333")
+                latitude = data.getFloatExtra("latitude", 0.0F)
+                longitude = data.getFloatExtra("longitude", 0.0F)
+                Log.d("MainData", latitude.toString() + " " + longitude.toString())
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude.toDouble(), longitude.toDouble()), 18.0F))
+            }
+        } else {
+            //위치 등록하다가 말았을 경우
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val SEOUL = LatLng(37.502777, 126.956665)
-        //mMap.addMarker(MarkerOptions().position(SEOUL).title("Marker in Seoul"))
-        //mMap.addMarker(MarkerOptions().position(BUSAN).title("Marker in Busan"))
-        //mMap.addMarker(MarkerOptions().position(JOT).title("Marker in Jot"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 18.0F))
-        //val builder = LatLngBounds.Builder()
-        //builder.include(SEOUL)
-        //builder.include(BUSAN)
-        //builder.include(JOT)
-        //var bounds = builder.build()
+        val INIT = LatLng(37.502777, 126.956665)
+        mMap.addMarker(
+            MarkerOptions().position(INIT).title("중앙대학교 208관").snippet("진입로 경사: 완만\n엘리베이터: 있음\n장애인 화장실: 있음").icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            )
+        )
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
         mapLoadedCallBack()
     }
 
@@ -74,7 +95,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         mMap.setOnCameraIdleListener {
-            mMap.clear()
+            //mMap.clear()
             getMarkerInfo(getMapBound())
         }
     }
@@ -109,9 +130,41 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun drawMarker(response: ResponseMarkerOnMap) {
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
+        var slope: Int
+        var elevator: Boolean
+        var toilet: Boolean
         for (marker in response.markers) {
+            var snippet = "진입로 경사: "
             val location = LatLng(marker.x_axis.toDouble(), marker.y_axis.toDouble())
-            mMap.addMarker(MarkerOptions().position(location).title(marker.location_name))
+            val markerOptions = MarkerOptions().position(location).title(marker.location_name)
+            slope = marker.slope
+            elevator = marker.elevator
+            toilet = marker.toilet
+            when (slope) {
+                0 -> {
+                    snippet += "완만\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                }
+                1 -> {
+                    snippet += "급함\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                }
+                2 -> {
+                    snippet += "계단\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                }
+            }
+            when (elevator) {
+                true -> snippet += "있음\n화장실: "
+                false -> snippet += "없음\n화장실: "
+            }
+            when (toilet) {
+                true -> snippet += "있음"
+                false -> snippet += "없음"
+            }
+            markerOptions.snippet(snippet)
+            mMap.addMarker(markerOptions)
         }
     }
 }

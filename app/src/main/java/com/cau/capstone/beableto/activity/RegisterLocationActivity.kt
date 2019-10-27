@@ -258,12 +258,12 @@ class RegisterLocationActivity : AppCompatActivity() {
             if (layout_toilet.isSelected) toilet = true
             else if (layout_no_toilet.isSelected) toilet = false;
 
-            //필수 항목 Validate
+            //TODO 필수 항목 Validate
             NetworkCore.getNetworkCore<BEABLETOAPI>()
                 .requestRegisterLocation(
                     SharedPreferenceController.getAuthorization(this@RegisterLocationActivity),
                     part,
-                    "영기집",
+                    et_location_name.text.toString(),
                     et_address.text.toString(),
                     latitude!!,
                     longitude!!,
@@ -277,6 +277,10 @@ class RegisterLocationActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
                     Log.d("L_Register Success", response.message)
+                    val back_intent = Intent()
+                    back_intent.putExtra("latitude", latitude!!)
+                    back_intent.putExtra("longitude", longitude!!)
+                    setResult(Activity.RESULT_OK, back_intent)
                     finish()
                     //Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()
                 }, {
