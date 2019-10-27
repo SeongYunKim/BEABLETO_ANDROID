@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         temp_register_location.setOnClickListener {
-            Log.d("MainData", "0000")
             val intent = Intent(this, RegisterLocationActivity::class.java)
             startActivityForResult(intent, GET_REGISTER_LOCATION)
         }
@@ -62,11 +61,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onActivityResult(requestCode, resultCode, data)
         var latitude : Float?
         var longitude : Float?
-        Log.d("MainData", "1111")
         if (requestCode == GET_REGISTER_LOCATION && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d("MainData", "2222")
             if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
-                Log.d("MainData", "3333")
                 latitude = data.getFloatExtra("latitude", 0.0F)
                 longitude = data.getFloatExtra("longitude", 0.0F)
                 Log.d("MainData", latitude.toString() + " " + longitude.toString())

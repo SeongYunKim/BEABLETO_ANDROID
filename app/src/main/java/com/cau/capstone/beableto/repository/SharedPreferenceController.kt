@@ -32,7 +32,6 @@ object SharedPreferenceController {
         return isLogin
     }
 
-    //TODO 로그아웃 SharedPreference 초기화
     fun logout(context : Context){
         val pref = context.getSharedPreferences(USER_NAME, Context.MODE_PRIVATE)
         pref.edit().clear().apply()

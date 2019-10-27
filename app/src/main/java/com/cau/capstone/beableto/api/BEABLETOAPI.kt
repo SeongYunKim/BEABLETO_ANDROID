@@ -33,11 +33,5 @@ interface BEABLETOAPI {
     fun requestMarkerOnMap(@Header("Authorization") authorization: String?,
                            @Body body: RequestMarkerOnMap) : Single<ResponseMarkerOnMap>
 
-    @GET("/qtest/hello/")
-    fun test(@Header("Authorization") authorization : String?): Single<ResponseTest>
-
-    @GET("/qtest/myinfo/")
-    fun test2(@Header("Authorization") authorization : String?): Single<ResponseTest>
-
     //로그아웃 "/accounts/logout/"
 }

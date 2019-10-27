@@ -36,7 +36,8 @@ object NetworkCore {
 */
 object NetworkCore {
     val api: Retrofit
-    val BASE_URL = "http://192.168.0.2:8000"
+    //val BASE_URL = "http://192.168.0.2:8000"
+    val BASE_URL = "http://58.76.166.147:8000"
 
     init {
         var okHttpClient = OkHttpClient()

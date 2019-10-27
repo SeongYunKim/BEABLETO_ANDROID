@@ -37,7 +37,6 @@ class InitActivity : AppCompatActivity() {
                     .subscribe({ response ->
                         Log.d("Login Success", response.token)
                             SharedPreferenceController.setAuthorization(this@InitActivity, response.token)
-                            Toast.makeText(this@InitActivity, SharedPreferenceController.getAuthorization(this), Toast.LENGTH_LONG).show()
                             val intent = Intent(this, MainActivity::class.java)
                             startActivity(intent)
                             finish()
