@@ -153,8 +153,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             when (elevator) {
-                true -> snippet += "있음\n화장실: "
-                false -> snippet += "없음\n화장실: "
+                true -> snippet += "있음\n장애인 화장실: "
+                false -> snippet += "없음\n장애인 화장실: "
             }
             when (toilet) {
                 true -> snippet += "있음"

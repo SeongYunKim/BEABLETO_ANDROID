@@ -14,6 +14,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +45,8 @@ class RegisterLocationActivity : AppCompatActivity() {
     private val PICK_IMAGE_REQUEST = 1234
     private val GET_IMAGE_ADDRESS_REQUEST = 5678
     private val PERMISSION_CODE = 4321
+    private var modify_latitude: Float? = null
+    private var modify_longitude: Float? = null
     private var latitude: Float? = null
     private var longitude: Float? = null
 
@@ -156,6 +160,22 @@ class RegisterLocationActivity : AppCompatActivity() {
             finish()
         }
 
+        et_location_name.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                statusText(validateStep())
+            }
+        })
+
+        et_address.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                statusText(validateStep())
+            }
+        })
+
         iv_register_location.setOnClickListener {
             val intent = Intent()
             intent.type = "image/*"
@@ -215,58 +235,72 @@ class RegisterLocationActivity : AppCompatActivity() {
         }
 
         layout_register_location.setOnClickListener {
-            var part: MultipartBody.Part? = null
-            if (string_filePath != null) {
-                val file = File(string_filePath)
-                val fileReqBody = RequestBody.create(MediaType.parse("image/*"), file)
-                part = MultipartBody.Part.createFormData("image", file.name, fileReqBody)
+            if (layout_register_location.isSelected) {
+                var part: MultipartBody.Part? = null
+                if (string_filePath != null) {
+                    val file = File(string_filePath)
+                    val fileReqBody = RequestBody.create(MediaType.parse("image/*"), file)
+                    part = MultipartBody.Part.createFormData("image", file.name, fileReqBody)
+                }
+
+                var slope = 0
+                var auto_door = true
+                var elevator = true
+                var toilet = true
+
+                if (layout_slope_none.isSelected) slope = 0;
+                else if (layout_slope_gentle.isSelected) slope = 1;
+                else if (layout_slope_sharp.isSelected) slope = 2;
+                if (layout_auto_door.isSelected) auto_door = true
+                else if (layout_hand_door.isSelected) auto_door = false
+                if (layout_elevator.isSelected) elevator = true
+                else if (layout_no_elevator.isSelected) elevator = false
+                if (layout_toilet.isSelected) toilet = true
+                else if (layout_no_toilet.isSelected) toilet = false;
+
+                //TODO 필수 항목 Validate
+                NetworkCore.getNetworkCore<BEABLETOAPI>()
+                    .requestRegisterLocation(
+                        SharedPreferenceController.getAuthorization(this@RegisterLocationActivity),
+                        part,
+                        et_location_name.text.toString(),
+                        et_address.text.toString(),
+                        modify_latitude!!,
+                        modify_longitude!!,
+                        slope,
+                        auto_door,
+                        elevator,
+                        toilet,
+                        null
+                    )
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ response ->
+                        Log.d("L_Register Success", response.message)
+                        val back_intent = Intent()
+                        back_intent.putExtra("latitude", modify_latitude!!)
+                        back_intent.putExtra("longitude", modify_longitude!!)
+                        setResult(Activity.RESULT_OK, back_intent)
+                        finish()
+                        //Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()
+                    }, {
+                        Log.d("L_Register Fail", Log.getStackTraceString(it))
+                    })
+            } else {
+                Toast.makeText(
+                    this@RegisterLocationActivity,
+                    "필수 정보를 모두 입력해 주세요.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-
-            var slope = 0
-            var auto_door = true
-            var elevator = true
-            var toilet = true
-
-            if (layout_slope_none.isSelected) slope = 0;
-            else if (layout_slope_gentle.isSelected) slope = 1;
-            else if (layout_slope_sharp.isSelected) slope = 2;
-            if (layout_auto_door.isSelected) auto_door = true
-            else if (layout_hand_door.isSelected) auto_door = false
-            if (layout_elevator.isSelected) elevator = true
-            else if (layout_no_elevator.isSelected) elevator = false
-            if (layout_toilet.isSelected) toilet = true
-            else if (layout_no_toilet.isSelected) toilet = false;
-
-            //TODO 필수 항목 Validate
-            NetworkCore.getNetworkCore<BEABLETOAPI>()
-                .requestRegisterLocation(
-                    SharedPreferenceController.getAuthorization(this@RegisterLocationActivity),
-                    part,
-                    et_location_name.text.toString(),
-                    et_address.text.toString(),
-                    latitude!!,
-                    longitude!!,
-                    slope,
-                    auto_door,
-                    elevator,
-                    toilet,
-                    "Hello"
-                )
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response ->
-                    Log.d("L_Register Success", response.message)
-                    val back_intent = Intent()
-                    back_intent.putExtra("latitude", latitude!!)
-                    back_intent.putExtra("longitude", longitude!!)
-                    setResult(Activity.RESULT_OK, back_intent)
-                    finish()
-                    //Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()
-                }, {
-                    Log.d("L_Register Fail", Log.getStackTraceString(it))
-                })
         }
     }
+
+    fun statusText(boolean: Boolean) {
+        layout_register_location.isSelected = boolean
+    }
+
+    fun validateStep(): Boolean = et_location_name.text.isNotEmpty() && et_address.text.isNotEmpty()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -278,12 +312,15 @@ class RegisterLocationActivity : AppCompatActivity() {
 
             try {
                 var bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
-                val orientation : Int? = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
-                if(orientation != -1){
-                    when(orientation){
-                        ExifInterface.ORIENTATION_ROTATE_90 -> bitmap = getRotatedBitmap(bitmap, 90.0F)
-                        ExifInterface.ORIENTATION_ROTATE_180 -> bitmap = getRotatedBitmap(bitmap, 18.0F)
-                        ExifInterface.ORIENTATION_ROTATE_270 -> bitmap = getRotatedBitmap(bitmap, 270.0F)
+                val orientation: Int? = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
+                if (orientation != -1) {
+                    when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> bitmap =
+                            getRotatedBitmap(bitmap, 90.0F)
+                        ExifInterface.ORIENTATION_ROTATE_180 -> bitmap =
+                            getRotatedBitmap(bitmap, 18.0F)
+                        ExifInterface.ORIENTATION_ROTATE_270 -> bitmap =
+                            getRotatedBitmap(bitmap, 270.0F)
                     }
                 }
                 iv_register_location!!.setImageBitmap(bitmap)
@@ -320,8 +357,8 @@ class RegisterLocationActivity : AppCompatActivity() {
 
         if (requestCode == GET_IMAGE_ADDRESS_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
-                latitude = data.getFloatExtra("latitude", 0.0F)
-                longitude = data.getFloatExtra("longitude", 0.0F)
+                modify_latitude = data.getFloatExtra("latitude", 0.0F)
+                modify_longitude = data.getFloatExtra("longitude", 0.0F)
             }
             if (data.hasExtra("location_name")) {
                 et_location_name.setText(data.getStringExtra("location_name"))
@@ -367,12 +404,12 @@ class RegisterLocationActivity : AppCompatActivity() {
         }
     }
 
-    fun getRotatedBitmap(bitmap: Bitmap?, degree: Float) : Bitmap? {
-        if(bitmap == null) return null;
-        if(degree == 0.0F) return bitmap
+    fun getRotatedBitmap(bitmap: Bitmap?, degree: Float): Bitmap? {
+        if (bitmap == null) return null;
+        if (degree == 0.0F) return bitmap
 
         val m = Matrix()
-        m.setRotate(degree, bitmap.width.toFloat() / 2, bitmap.height.toFloat() /2)
+        m.setRotate(degree, bitmap.width.toFloat() / 2, bitmap.height.toFloat() / 2)
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, m, true)
     }
 
