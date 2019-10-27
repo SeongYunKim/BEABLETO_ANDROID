@@ -53,14 +53,14 @@
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:background="?android:attr/listDivider"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:background="?android:attr/listDivider" />
 
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:layout_centerHorizontal="true"
                 android:layout_above="@+id/divider"
+                android:layout_centerHorizontal="true"
                 android:background="@drawable/blue_marker" />
         </RelativeLayout>
 
@@ -80,11 +80,24 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:layout_toRightOf="@id/btn_modify_location__cancel"
+                android:singleLine="true"
                 android:text="[주소] Default Address"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_modify_location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="8dp"
+                android:hint="위치명 입력 (ex. 중앙대학교 208관)"
+                android:inputType="text"
+                android:textSize="16sp"
+                android:theme="@style/EditTextStyle" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/btn_modify_next"

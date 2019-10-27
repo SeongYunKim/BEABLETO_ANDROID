@@ -6,7 +6,9 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
@@ -17,7 +19,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -46,24 +50,37 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         btn_modify_next.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra("latitude", latitude)
-            intent.putExtra("longitude", longitude)
-            intent.putExtra("address", address)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            if (et_modify_location_name.text.isNotEmpty()) {
+                val intent = Intent()
+                intent.putExtra("latitude", latitude)
+                intent.putExtra("longitude", longitude)
+                intent.putExtra("address", address)
+                intent.putExtra("location_name", et_modify_location_name.text.toString())
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            } else {
+                Toast.makeText(this@ModifyLocationActivity, "위치명을 입력해 주세요.", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val CUR: LatLng
-        if (intent.hasExtra("latitude") && intent.hasExtra("longitude")) {
-            CUR = LatLng(
-                intent.getFloatExtra("latitude", 0.0F).toDouble(),
-                intent.getFloatExtra("longitude", 0.0F).toDouble()
-            )
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CUR, 18.0F))
+        if (intent.hasExtra("use_photo")) {
+            if (intent.getBooleanExtra("use_photo", false)) {
+                if (intent.hasExtra("latitude") && intent.hasExtra("longitude")) {
+                    CUR = LatLng(
+                        intent.getFloatExtra("latitude", 0.0F).toDouble(),
+                        intent.getFloatExtra("longitude", 0.0F).toDouble()
+                    )
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CUR, 18.0F))
+                }
+            } else {
+                val INIT = LatLng(37.502777, 126.956665)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
+            }
         }
         mapLoadedCallBack()
     }
@@ -74,11 +91,13 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         mMap.setOnCameraMoveStartedListener {
+            et_modify_location_name.text = null
             btn_modify_next.isSelected = false
             tv_modify_address.text = "위치 이동중 입니다."
         }
 
         mMap.setOnCameraMoveListener {
+            et_modify_location_name.text = null
             btn_modify_next.isSelected = false
             tv_modify_address.text = "위치 이동중 입니다."
         }
@@ -92,9 +111,24 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
             //Log.d("Center", center.latitude.toFloat().toString() + " " + center.longitude.toFloat())
             tv_modify_address.text =
                 "[주소] " + address
-            mMap.clear()
+            //mMap.clear()
             getMarkerInfo(getMapBound())
         }
+
+        mMap.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
+            override fun onMarkerClick(marker: Marker): Boolean {
+                mMap.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            marker.position.latitude,
+                            marker.position.longitude
+                        ), 18.0F
+                    )
+                )
+                et_modify_location_name.setText(marker.title)
+                return true
+            }
+        })
     }
 
     private fun getMapBound(): Pair<LatLng, LatLng> {
@@ -127,9 +161,41 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun drawMarker(response: ResponseMarkerOnMap) {
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
+        var slope: Int
+        var elevator: Boolean
+        var toilet: Boolean
         for (marker in response.markers) {
+            var snippet = "진입로 경사: "
             val location = LatLng(marker.x_axis.toDouble(), marker.y_axis.toDouble())
-            mMap.addMarker(MarkerOptions().position(location).title(marker.location_name))
+            val markerOptions = MarkerOptions().position(location).title(marker.location_name)
+            slope = marker.slope
+            elevator = marker.elevator
+            toilet = marker.toilet
+            when (slope) {
+                0 -> {
+                    snippet += "완만\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                }
+                1 -> {
+                    snippet += "급함\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                }
+                2 -> {
+                    snippet += "계단\n엘리베이터: "
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                }
+            }
+            when (elevator) {
+                true -> snippet += "있음\n화장실: "
+                false -> snippet += "없음\n화장실: "
+            }
+            when (toilet) {
+                true -> snippet += "있음"
+                false -> snippet += "없음"
+            }
+            markerOptions.snippet(snippet)
+            mMap.addMarker(markerOptions)
         }
     }
 

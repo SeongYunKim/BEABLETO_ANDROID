@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
@@ -179,39 +180,8 @@ class RegisterLocationActivity : AppCompatActivity() {
             try {
                 if (cb_use_photo.isChecked) {
                     if (filePath != null) {
-                        val inputStream = getContentResolver().openInputStream(filePath!!)
-                        val exif = ExifInterface(inputStream!!)
-                        val address: String?
-                        //Exif GPS 정보를 GeoPoint로 변환
-                        val attrLatitude: String? =
-                            exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
-                        val attrLatitude_REF: String? =
-                            exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
-                        val attrLongtitute: String? =
-                            exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
-                        val attrLongtitute_REF: String? =
-                            exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
-                        if ((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)) {
-                            if (attrLatitude_REF == "N")
-                                latitude = convertToDegree(attrLatitude)
-                            else
-                                latitude = 0 - convertToDegree(attrLatitude)
-
-                            if (attrLongtitute_REF == "E")
-                                longitude = convertToDegree(attrLongtitute)
-                            else
-                                longitude = 0 - convertToDegree(attrLongtitute)
-
-                            //address = getAddress(latitude!!, longitude!!)
-                            //et_address.setText(address)
-                            //Log.d("Center", latitude.toString() + " " + longitude.toString())
-                            //Log.d("Center", address)
-                            val intent = Intent(this, ModifyLocationActivity::class.java)
-                            intent.putExtra("latitude", latitude!!)
-                            intent.putExtra("longitude", longitude!!)
-                            //intent.putExtra("address", address)
-                            startActivityForResult(intent, GET_IMAGE_ADDRESS_REQUEST)
-                        } else {
+                        if (longitude == null || latitude == null) {
+                            cb_use_photo.isChecked = false
                             Toast.makeText(
                                 this@RegisterLocationActivity,
                                 "사진에 위치 정보가 없습니다.",
@@ -219,20 +189,27 @@ class RegisterLocationActivity : AppCompatActivity() {
                             ).show()
                         }
                     } else {
+                        cb_use_photo.isChecked = false
                         Toast.makeText(
                             this@RegisterLocationActivity,
                             "등록된 사진이 없습니다.",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                } else {
-                    latitude = null
-                    longitude = null
-                    et_address.text = null
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+        }
+
+        btn_location_search.setOnClickListener {
+            val intent = Intent(this, ModifyLocationActivity::class.java)
+            if (cb_use_photo.isChecked) {
+                intent.putExtra("latitude", latitude!!)
+                intent.putExtra("longitude", longitude!!)
+            }
+            intent.putExtra("use_photo", cb_use_photo.isChecked)
+            startActivityForResult(intent, GET_IMAGE_ADDRESS_REQUEST)
         }
 
         layout_register_location.setOnClickListener {
@@ -300,6 +277,31 @@ class RegisterLocationActivity : AppCompatActivity() {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+            val inputStream = getContentResolver().openInputStream(filePath!!)
+            val exif = ExifInterface(inputStream!!)
+            //Exif GPS 정보를 GeoPoint로 변환
+            val attrLatitude: String? =
+                exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
+            val attrLatitude_REF: String? =
+                exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+            val attrLongtitute: String? =
+                exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
+            val attrLongtitute_REF: String? =
+                exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+            if ((attrLatitude != null) && (attrLatitude_REF != null) && (attrLongtitute != null) && (attrLongtitute_REF != null)) {
+                if (attrLatitude_REF == "N")
+                    latitude = convertToDegree(attrLatitude)
+                else
+                    latitude = 0 - convertToDegree(attrLatitude)
+
+                if (attrLongtitute_REF == "E")
+                    longitude = convertToDegree(attrLongtitute)
+                else
+                    longitude = 0 - convertToDegree(attrLongtitute)
+            } else {
+                latitude = null
+                longitude = null
+            }
         } else {
             //사진 등록하다가 말았을 경우
         }
@@ -309,7 +311,10 @@ class RegisterLocationActivity : AppCompatActivity() {
                 latitude = data.getFloatExtra("latitude", 0.0F)
                 longitude = data.getFloatExtra("longitude", 0.0F)
             }
-            if(data.hasExtra("address")){
+            if (data.hasExtra("location_name")) {
+                et_location_name.setText(data.getStringExtra("location_name"))
+            }
+            if (data.hasExtra("address")) {
                 et_address.setText(data.getStringExtra("address"))
             }
         } else {
