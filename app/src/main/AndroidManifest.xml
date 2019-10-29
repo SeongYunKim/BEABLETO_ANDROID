@@ -3,8 +3,9 @@
     package="com.cau.capstone.beableto">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="false"
@@ -16,12 +17,13 @@
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDGW7hACVhTjznUrkZIQoZZMVRRhG1pFHc"/>
+            android:value="AIzaSyDGW7hACVhTjznUrkZIQoZZMVRRhG1pFHc" />
+
         <activity android:name=".MainActivity" />
         <activity android:name=".InitActivity" />
-        <activity android:name=".RegisterActivity"/>
-        <activity android:name=".activity.RegisterLocationActivity"/>
-        <activity android:name=".activity.ModifyLocationActivity"/>
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".activity.RegisterLocationActivity" />
+        <activity android:name=".activity.ModifyLocationActivity" />
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait">

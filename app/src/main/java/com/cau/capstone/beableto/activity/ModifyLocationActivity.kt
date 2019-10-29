@@ -1,13 +1,18 @@
 package com.cau.capstone.beableto.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
@@ -15,6 +20,8 @@ import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -31,6 +38,11 @@ import java.util.*
 class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private val PERMISSION_CODE = 3456
+    private var mLocationPermissionGranted = false
+    private lateinit var lastLocation: Location
+    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+
     private var latitude: Float? = null
     private var longitude: Float? = null
     private var address: String? = null
@@ -78,11 +90,28 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CUR, 18.0F))
                 }
             } else {
-                val INIT = LatLng(37.502777, 126.956665)
+                val INIT = LatLng(37.50352, 126.95706)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
+                mMap.isMyLocationEnabled = true
+                getDeviceLocation()
             }
         }
         mapLoadedCallBack()
+    }
+
+    private fun getDeviceLocation() {
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        try {
+            mFusedLocationProviderClient.lastLocation.addOnSuccessListener(this) { location ->
+                if (location != null) {
+                    lastLocation = location
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18.0F))
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun mapLoadedCallBack() {
