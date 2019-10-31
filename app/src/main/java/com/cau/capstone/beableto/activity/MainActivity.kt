@@ -15,12 +15,12 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 //import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
-import com.cau.capstone.beableto.activity.RegisterLocationActivity
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
@@ -42,11 +42,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val GET_REGISTER_LOCATION = 9012
+    private val SETTING = 7890
     private val PERMISSION_CODE = 3456
     private lateinit var mMap: GoogleMap
     private var mLocationPermissionGranted = false
     private lateinit var lastLocation: Location
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+    private var stair_marker: Boolean = true
+    private var sharp_marker: Boolean = true
+    private var gentle_marker: Boolean = true
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +59,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        var setting = SharedPreferenceController.getSetting(this@MainActivity)
+        stair_marker = setting.stair
+        sharp_marker = setting.sharp
+        gentle_marker = setting.gentle
 
         //val placeAutoSuggestAdapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_dropdown_item_1line)
         //main_autocomplete.setAdapter(placeAutoSuggestAdapter)
@@ -67,6 +77,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 finishAffinity()
             }
+        }
+
+        drawer_setting.setOnClickListener {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivityForResult(intent, SETTING)
         }
 
         ic_menu.setOnClickListener {
@@ -107,6 +122,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         } else {
             //위치 등록하다가 말았을 경우
+        }
+        if (requestCode == SETTING && resultCode == Activity.RESULT_OK) {
+            var setting = SharedPreferenceController.getSetting(this@MainActivity)
+            stair_marker = setting.stair
+            sharp_marker = setting.sharp
+            gentle_marker = setting.gentle
+            mMap.clear()
+            getMarkerInfo(getMapBound())
+        } else {
+            //설정 하다가 말았을 경우
         }
     }
 
@@ -295,7 +320,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 false -> snippet += "없음"
             }
             markerOptions.snippet(snippet)
-            mMap.addMarker(markerOptions)
+            if ((slope == 0 && gentle_marker) || (slope == 1 && sharp_marker) || (slope == 2 && stair_marker)) {
+                mMap.addMarker(markerOptions)
+            }
         }
     }
 }

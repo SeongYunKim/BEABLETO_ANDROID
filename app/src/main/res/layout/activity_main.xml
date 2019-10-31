@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        tools:openDrawer="start"
-        android:id="@+id/drawer">
+        tools:openDrawer="start">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -75,10 +75,11 @@
 
                 <ImageView
                     android:id="@+id/ic_menu"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="25dp"
+                    android:layout_height="35dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="10dp"
+                    android:paddingRight="10dp"
                     android:src="@drawable/ic_menu" />
 
                 <EditText
@@ -111,6 +112,7 @@
                 android:background="@color/colorPrimary"></RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/drawer_setting"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:background="@color/colorWhite"
