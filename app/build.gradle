@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.google.android.libraries.places:places:2.0.0'
+    implementation "androidx.drawerlayout:drawerlayout:1.0.0"
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0' // 레트로핏 라이브러리
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0' // 레트로핏과 rx 같이 쓸수있게 도와주는 라이브러리

@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.drawerlayout.widget.DrawerLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:fitsSystemWindows="true"
+        tools:openDrawer="start"
+        android:id="@+id/drawer">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -49,17 +51,6 @@
                 android:layout_toLeftOf="@id/divider3"
                 android:background="@drawable/btn_plus" />
 
-            <Button
-                android:id="@+id/temp_logout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/divider2"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="12dp"
-                android:layout_marginBottom="12dp"
-                android:layout_toRightOf="@id/divider4"
-                android:text="로그 아웃" />
-
             <!--
             <AutoCompleteTextView
                 android:layout_width="match_parent"
@@ -83,12 +74,12 @@
                 android:elevation="10dp">
 
                 <ImageView
-                    android:id="@+id/ic_magnify"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
+                    android:id="@+id/ic_menu"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="10dp"
-                    android:src="@drawable/ic_magnify" />
+                    android:src="@drawable/ic_menu" />
 
                 <EditText
                     android:id="@+id/et_main_place_search"
@@ -96,15 +87,99 @@
                     android:layout_height="match_parent"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="7dp"
-                    android:layout_toRightOf="@id/ic_magnify"
+                    android:layout_toRightOf="@id/ic_menu"
                     android:background="@null"
                     android:hint="장소 찾기"
                     android:imeOptions="actionSearch"
-                    android:maxLines="1"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/colorBlack"
                     android:textSize="17sp" />
             </RelativeLayout>
         </RelativeLayout>
-    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/drawer_header"
+            android:layout_width="350dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@color/colorPrimary"></RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="30dp"
+                    android:text="설정"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="30dp"
+                    android:text="마이페이지(준비중)"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="30dp"
+                    android:text="고객센터(준비중)"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/drawer_logout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="30dp"
+                    android:text="로그아웃"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:background="@color/colorWhite"
+                android:orientation="horizontal" />
+        </LinearLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

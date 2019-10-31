@@ -11,13 +11,14 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
-import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
+//import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.activity.RegisterLocationActivity
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
@@ -58,12 +59,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         getLocationPermission()
 
-        temp_logout.setOnClickListener {
+        drawer_logout.setOnClickListener {
             SharedPreferenceController.logout(this@MainActivity)
             val intent = Intent(this, InitActivity::class.java)
             startActivity(intent)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 finishAffinity()
+            }
+        }
+
+        ic_menu.setOnClickListener {
+            if (!drawer.isDrawerOpen(Gravity.LEFT)) {
+                drawer.openDrawer(Gravity.LEFT)
             }
         }
 
