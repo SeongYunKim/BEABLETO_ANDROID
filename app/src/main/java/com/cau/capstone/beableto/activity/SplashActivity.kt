@@ -4,8 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import com.cau.capstone.beableto.InitActivity
-import com.cau.capstone.beableto.MainActivity
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 

@@ -19,13 +19,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDGW7hACVhTjznUrkZIQoZZMVRRhG1pFHc" />
 
-        <activity android:name=".MainActivity" />
-        <activity android:name=".InitActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".activity.InitActivity" />
+        <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.RegisterLocationActivity" />
         <activity android:name=".activity.ModifyLocationActivity" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".activity.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

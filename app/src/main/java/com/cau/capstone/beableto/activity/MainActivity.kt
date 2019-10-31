@@ -18,7 +18,6 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
-import com.cau.capstone.beableto.InitActivity
 import com.cau.capstone.beableto.R
 //import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.activity.RegisterLocationActivity
