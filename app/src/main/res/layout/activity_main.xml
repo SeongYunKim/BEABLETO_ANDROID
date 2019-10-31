@@ -8,23 +8,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!--
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/temp_marker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="50dp"
-                android:text="마커" />
-
-        </LinearLayout>
-        -->
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -56,7 +39,7 @@
                 android:layout_toLeftOf="@id/map"
                 android:background="?android:attr/listDivider" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <ImageView
                 android:id="@+id/main_register_location"
                 android:layout_width="65dp"
                 android:layout_height="65dp"
@@ -64,23 +47,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="20dp"
                 android:layout_toLeftOf="@id/divider3"
-                android:background="@drawable/circle"
-                android:backgroundTint="@color/colorPrimary">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center"
-                    android:text="+"
-                    android:textColor="@color/colorPrimaryGray"
-                    android:textSize="50sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:background="@drawable/btn_plus" />
 
             <Button
                 android:id="@+id/temp_logout"
@@ -92,6 +59,52 @@
                 android:layout_marginBottom="12dp"
                 android:layout_toRightOf="@id/divider4"
                 android:text="로그 아웃" />
+
+            <!--
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:hint="장소 찾기"
+                android:id="@+id/main_autocomplete"
+                android:background="@drawable/white_border"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
+                -->
+
+            <RelativeLayout
+                android:id="@+id/main_place_search"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/white_border"
+                android:elevation="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_magnify"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_magnify" />
+
+                <EditText
+                    android:id="@+id/et_main_place_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="7dp"
+                    android:layout_toRightOf="@id/ic_magnify"
+                    android:background="@null"
+                    android:hint="장소 찾기"
+                    android:imeOptions="actionSearch"
+                    android:maxLines="1"
+                    android:inputType="text"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+            </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>
 </layout>

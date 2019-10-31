@@ -62,6 +62,40 @@
                 android:layout_above="@+id/divider"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/blue_marker" />
+
+            <RelativeLayout
+                android:id="@+id/modify_place_search"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/white_border"
+                android:elevation="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_magnify"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_magnify" />
+
+                <EditText
+                    android:id="@+id/et_modify_place_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="7dp"
+                    android:layout_toRightOf="@id/ic_magnify"
+                    android:background="@null"
+                    android:hint="장소 찾기"
+                    android:imeOptions="actionSearch"
+                    android:maxLines="1"
+                    android:inputType="text"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+            </RelativeLayout>
         </RelativeLayout>
 
 

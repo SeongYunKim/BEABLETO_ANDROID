@@ -4,14 +4,20 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
+import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.activity.RegisterLocationActivity
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
@@ -46,6 +52,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        //val placeAutoSuggestAdapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_dropdown_item_1line)
+        //main_autocomplete.setAdapter(placeAutoSuggestAdapter)
 
         getLocationPermission()
 
@@ -105,7 +114,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 mLocationPermissionGranted = true
-                //initMap()
             } else {
                 ActivityCompat.requestPermissions(
                     this,
@@ -158,6 +166,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             //mMap.clear()
             getMarkerInfo(getMapBound())
         }
+
+
+        et_main_place_search.setOnEditorActionListener(
+            object : TextView.OnEditorActionListener {
+                override fun onEditorAction(
+                    v: TextView?,
+                    actionId: Int,
+                    event: KeyEvent?
+                ): Boolean {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE || event?.action == KeyEvent.ACTION_DOWN || event?.action == KeyEvent.KEYCODE_ENTER) {
+                        geoLocate()
+                    }
+                    return false
+                }
+            }
+        )
     }
 
     private fun getDeviceLocation() {
@@ -174,6 +198,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun geoLocate() {
+        val searchString = et_main_place_search.text.toString()
+        val geocoder = Geocoder(this)
+        var list: List<Address> = ArrayList()
+        try {
+            list = geocoder.getFromLocationName(searchString, 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (list.isNotEmpty()) {
+            val address = list[0]
+            mMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        address.latitude,
+                        address.longitude
+                    ), 18.0F
+                )
+            )
         }
     }
 

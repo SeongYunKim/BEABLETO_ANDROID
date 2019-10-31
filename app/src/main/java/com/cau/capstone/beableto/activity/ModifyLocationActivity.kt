@@ -1,18 +1,17 @@
 package com.cau.capstone.beableto.activity
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
@@ -158,6 +157,46 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
                 return true
             }
         })
+
+        et_modify_place_search.setOnEditorActionListener(
+            object : TextView.OnEditorActionListener {
+                override fun onEditorAction(
+                    v: TextView?,
+                    actionId: Int,
+                    event: KeyEvent?
+                ): Boolean {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE || event?.action == KeyEvent.ACTION_DOWN || event?.action == KeyEvent.KEYCODE_ENTER) {
+                        geoLocate()
+                    }
+                    return false
+                }
+            }
+        )
+    }
+
+    private fun geoLocate() {
+        val searchString = et_modify_place_search.text.toString()
+        val geocoder = Geocoder(this)
+        var list: List<Address> = ArrayList()
+        try {
+            list = geocoder.getFromLocationName(searchString, 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (list.isNotEmpty()) {
+            val info = list[0]
+            mMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        info.latitude,
+                        info.longitude
+                    ), 18.0F
+                )
+            )
+            address = getAddress(info.latitude.toFloat(), info.latitude.toFloat())
+            tv_modify_address.text =
+                "[주소] " + address
+        }
     }
 
     private fun getMapBound(): Pair<LatLng, LatLng> {
