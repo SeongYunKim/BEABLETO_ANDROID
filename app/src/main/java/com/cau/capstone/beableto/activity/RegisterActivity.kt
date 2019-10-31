@@ -1,6 +1,5 @@
-package com.cau.capstone.beableto
+package com.cau.capstone.beableto.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,10 +9,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestRegister
-import com.cau.capstone.beableto.repository.UserRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_register.*
@@ -23,8 +22,6 @@ import retrofit2.HttpException
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        val userRepository: UserRepository
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)

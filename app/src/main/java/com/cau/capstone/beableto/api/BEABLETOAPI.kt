@@ -26,7 +26,7 @@ interface BEABLETOAPI {
                                 @Part("auto_door") auto_door: Boolean,
                                 @Part("elevator") elevator: Boolean,
                                 @Part("toilet") toilet: Boolean,
-                                @Part("comment") comment: String
+                                @Part("comment") comment: String?
                                 ) : Single<ResponseRegisterLocation>
 
     @POST("/information/getmarker/")

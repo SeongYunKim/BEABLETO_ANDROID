@@ -37,8 +37,6 @@ import java.util.*
 class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private val PERMISSION_CODE = 3456
-    private var mLocationPermissionGranted = false
     private lateinit var lastLocation: Location
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
 

@@ -1,4 +1,4 @@
-package com.cau.capstone.beableto
+package com.cau.capstone.beableto.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,15 +7,14 @@ import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestLogIn
-import com.cau.capstone.beableto.data.RequestRegister
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_init.*
-import kotlinx.android.synthetic.main.activity_register.*
 import retrofit2.HttpException
 
 class InitActivity : AppCompatActivity() {
