@@ -13,6 +13,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
@@ -51,11 +53,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var stair_marker: Boolean = true
     private var sharp_marker: Boolean = true
     private var gentle_marker: Boolean = true
+    private lateinit var fab_open: Animation
+    private lateinit var fab_close: Animation
+    private var isFabOpen : Boolean = false;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        fab_open = AnimationUtils.loadAnimation(applicationContext, R.anim.fab_open)
+        fab_close = AnimationUtils.loadAnimation(applicationContext, R.anim.fab_close)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -90,9 +98,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        main_register_location.setOnClickListener {
+        fab.setOnClickListener {
+            anim()
+        }
+
+        fab1.setOnClickListener {
+            anim()
             val intent = Intent(this, RegisterLocationActivity::class.java)
             startActivityForResult(intent, GET_REGISTER_LOCATION)
+        }
+
+        fab2.setOnClickListener {
+            anim()
+            val intent = Intent(this, RegisterRouteActivity::class.java)
+            startActivity(intent)
+        }
+
+        fab3.setOnClickListener {
+            anim()
         }
 
         /*
@@ -323,6 +346,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if ((slope == 0 && gentle_marker) || (slope == 1 && sharp_marker) || (slope == 2 && stair_marker)) {
                 mMap.addMarker(markerOptions)
             }
+        }
+    }
+
+    private fun anim() {
+        if(isFabOpen) {
+            fab1.startAnimation(fab_close)
+            fab2.startAnimation(fab_close)
+            fab3.startAnimation(fab_close)
+            fab1.isClickable = false
+            fab2.isClickable = false
+            fab3.isClickable = false
+            isFabOpen = false
+        } else {
+            fab1.startAnimation(fab_open)
+            fab2.startAnimation(fab_open)
+            fab3.startAnimation(fab_open)
+            fab1.isClickable = true
+            fab2.isClickable = true
+            fab3.isClickable = false
+            isFabOpen = true
         }
     }
 }

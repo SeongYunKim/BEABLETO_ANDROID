@@ -41,6 +41,7 @@
                 android:layout_toLeftOf="@id/map"
                 android:background="?android:attr/listDivider" />
 
+            <!--
             <ImageView
                 android:id="@+id/main_register_location"
                 android:layout_width="65dp"
@@ -50,6 +51,7 @@
                 android:layout_marginBottom="20dp"
                 android:layout_toLeftOf="@id/divider3"
                 android:background="@drawable/btn_plus" />
+                -->
 
             <!--
             <AutoCompleteTextView
@@ -97,6 +99,67 @@
                     android:textColor="@color/colorBlack"
                     android:textSize="17sp" />
             </RelativeLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/fab2"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="6dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@drawable/ic_bus"
+                android:visibility="invisible"
+                app:elevation="6dp"
+                app:fabCustomSize="75dp"
+                app:pressedTranslationZ="12dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/fab1"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="6dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@drawable/ic_route"
+                android:visibility="invisible"
+                app:elevation="6dp"
+                app:fabCustomSize="75dp"
+                app:pressedTranslationZ="12dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/fab"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@drawable/ic_city"
+                android:visibility="invisible"
+                app:elevation="6dp"
+                app:fabCustomSize="75dp"
+                app:pressedTranslationZ="12dp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:src="@drawable/ic_plus"
+                app:fabCustomSize="75dp" />
         </RelativeLayout>
 
         <LinearLayout
@@ -108,8 +171,32 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:background="@color/colorPrimary"></RelativeLayout>
+                android:layout_height="170dp"
+                android:background="@color/colorPrimary">
+
+                <TextView
+                    android:id="@+id/drawer_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/drawer_email"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Admin Account"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/drawer_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="admin@admin.com"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/drawer_setting"
