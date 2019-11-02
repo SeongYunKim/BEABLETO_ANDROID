@@ -20,6 +20,9 @@
             android:value="AIzaSyDGW7hACVhTjznUrkZIQoZZMVRRhG1pFHc" />
 
         <activity android:name=".activity.SettingActivity" />
+        <activity android:name=".activity.RegisterRouteActivity" />
+        <activity android:name=".activity.RegisterRouteActivity2" />
+        <activity android:name=".activity.RegisterRouteActivity3" />
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.InitActivity" />
         <activity android:name=".activity.RegisterActivity" />

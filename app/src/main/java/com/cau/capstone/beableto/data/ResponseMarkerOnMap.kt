@@ -1,5 +1,5 @@
 package com.cau.capstone.beableto.data
 
-class ResponseMarkerOnMap(
+data class ResponseMarkerOnMap(
     val markers: List<Marker>
 )
