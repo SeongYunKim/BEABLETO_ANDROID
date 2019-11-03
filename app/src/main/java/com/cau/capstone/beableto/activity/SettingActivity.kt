@@ -17,6 +17,7 @@ class SettingActivity : AppCompatActivity() {
         switch_stair.isChecked = setting.stair
         switch_sharp.isChecked = setting.sharp
         switch_gentle.isChecked = setting.gentle
+        switch_route.isChecked = setting.route
 
         btn_setting_cancel.setOnClickListener {
             finish()
@@ -27,7 +28,8 @@ class SettingActivity : AppCompatActivity() {
                 this@SettingActivity,
                 switch_stair.isChecked,
                 switch_sharp.isChecked,
-                switch_gentle.isChecked
+                switch_gentle.isChecked,
+                switch_route.isChecked
             )
             val intent = Intent()
             setResult(Activity.RESULT_OK, intent)
