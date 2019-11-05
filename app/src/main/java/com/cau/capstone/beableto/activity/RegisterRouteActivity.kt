@@ -8,10 +8,12 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat.setBackgroundTintList
 import com.cau.capstone.beableto.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.activity_register_route.*
 
 class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -29,11 +32,15 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var lastLocation: Location
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+    private var is_start_point_selected: Boolean = false
 
-    private var latitude: Float? = null
-    private var longitude: Float? = null
+    private var start_latitude: Float? = null
+    private var start_longitude: Float? = null
+    private var start_latlng: LatLng? = null
+    private var end_latitude: Float? = null
+    private var end_longitude: Float? = null
+    private var end_latlng: LatLng? = null
     private var slope: Int? = null
-    private var next_available: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,17 +91,14 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         btn_register_route_next1.setOnClickListener {
-            if (next_available) {
-                if (layout_road_none.isSelected) slope = 0
-                else if (layout_road_gentle.isSelected) slope = 1
-                else if (layout_road_sharp.isSelected) slope = 2
-                val intent = Intent(this, RegisterRouteActivity2::class.java)
-                intent.putExtra("slope", slope)
-                intent.putExtra("start_latitude", latitude)
-                intent.putExtra("start_longitude", longitude)
-                startActivityForResult(intent, REGISTER_ROAD)
-            } else {
+            if (!layout_road_none.isSelected && !layout_road_gentle.isSelected && !layout_road_sharp.isSelected) {
+                Toast.makeText(this@RegisterRouteActivity, "도로 경사를 선택해 주세요.", Toast.LENGTH_SHORT)
+                    .show()
+            } else if (!is_start_point_selected) {
                 Toast.makeText(this@RegisterRouteActivity, "도로의 시작점을 설정해 주세요.", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                Toast.makeText(this@RegisterRouteActivity, "도로의 도착점을 설정해 주세요.", Toast.LENGTH_SHORT)
                     .show()
             }
         }
@@ -102,13 +106,44 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         btn_register_route_setting1.setOnClickListener {
             if (layout_road_none.isSelected || layout_road_gentle.isSelected || layout_road_sharp.isSelected) {
                 val center = mMap.cameraPosition.target
-                latitude = center.latitude.toFloat()
-                longitude = center.longitude.toFloat()
-                next_available = true
-                btn_register_route_next1.setTextColor(Color.parseColor("#000000"))
-                register_route_info1.text = "다음 버튼을 누르세요"
-                mMap.clear()
-                mMap.addMarker(MarkerOptions().position(LatLng(latitude!!.toDouble(), longitude!!.toDouble())).title("시작점"))
+                if (!is_start_point_selected) {
+                    start_latitude = center.latitude.toFloat()
+                    start_longitude = center.longitude.toFloat()
+                    start_latlng =
+                        LatLng(
+                            center.latitude.toFloat().toDouble(),
+                            center.longitude.toFloat().toDouble()
+                        )
+                    //btn_register_route_next1.setTextColor(Color.parseColor("#000000"))
+                    register_route_info1.text = "지도를 움직여 도로의 도착점을 설정하세요"
+                    register_route_info1.setBackgroundTintList(resources.getColorStateList(R.color.colorBlue))
+                    btn_register_route_setting1.setBackgroundTintList(resources.getColorStateList(R.color.colorBlue))
+                    tv_route_register_setting1.text = "선택한 위치를 도착점으로 설정"
+                    mMap.clear()
+                    mMap.addMarker(
+                        MarkerOptions().position(
+                            LatLng(
+                                start_latitude!!.toDouble(),
+                                start_longitude!!.toDouble()
+                            )
+                        ).title("시작점")
+                    )
+                    is_start_point_selected = true
+                } else {
+                    if (layout_road_none.isSelected) slope = 0
+                    else if (layout_road_gentle.isSelected) slope = 1
+                    else if (layout_road_sharp.isSelected) slope = 2
+                    end_latitude = center.latitude.toFloat()
+                    end_longitude = center.longitude.toFloat()
+
+                    val intent = Intent(this, RegisterRouteActivity3::class.java)
+                    intent.putExtra("slope", slope)
+                    intent.putExtra("start_latitude", start_latitude!!)
+                    intent.putExtra("start_longitude", start_longitude!!)
+                    intent.putExtra("end_latitude", end_latitude!!)
+                    intent.putExtra("end_longitude", end_longitude!!)
+                    startActivityForResult(intent, REGISTER_ROAD)
+                }
             } else {
                 Toast.makeText(this@RegisterRouteActivity, "도로 경사를 선택해 주세요.", Toast.LENGTH_SHORT)
                     .show()
@@ -167,19 +202,41 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setOnCameraMoveStartedListener {
             btn_register_route_setting1.isSelected = false
+            center_marker1.visibility = View.VISIBLE
         }
 
         mMap.setOnCameraMoveListener {
             btn_register_route_setting1.isSelected = false
+            center_marker1.visibility = View.VISIBLE
         }
 
         mMap.setOnCameraIdleListener {
             btn_register_route_setting1.isSelected = true
-            /*
-            next_available = false
-            btn_register_route_next1.setTextColor(Color.parseColor("#909090"))
-            register_route_info1.text = "지도를 움직여 도로의 시작점을 설정하세요"
-            */
+            center_marker1.visibility = View.INVISIBLE
+            val center = mMap.cameraPosition.target
+            if (is_start_point_selected) {
+                end_latlng =
+                    LatLng(
+                        center.latitude.toFloat().toDouble(),
+                        center.longitude.toFloat().toDouble()
+                    )
+                mMap.clear()
+                mMap.addMarker(MarkerOptions().position(start_latlng!!).title("시작점"))
+                mMap.addMarker(MarkerOptions().position(end_latlng!!).title("도착점"))
+                mMap.addPolyline(
+                    PolylineOptions().add(start_latlng, end_latlng).width(10.0F).color(
+                        Color.RED
+                    )
+                )
+            } else {
+                start_latlng =
+                    LatLng(
+                        center.latitude.toFloat().toDouble(),
+                        center.longitude.toFloat().toDouble()
+                    )
+                mMap.clear()
+                mMap.addMarker(MarkerOptions().position(start_latlng!!).title("시작점"))
+            }
         }
 
         et_route_search1.setOnEditorActionListener(

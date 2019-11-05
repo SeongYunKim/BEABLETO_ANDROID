@@ -33,8 +33,7 @@ interface BEABLETOAPI {
     fun requestMarkerOnMap(@Header("Authorization") authorization: String?,
                            @Body body: RequestMarkerOnMap) : Single<ResponseMarkerOnMap>
 
-    //TODO 도로 등록 URL 추가
-    @POST("")
+    @POST("/information/road/")
     fun requestRegisterRoute(@Header("Authorization") authorization: String?,
                              @Body body: RequestRegisterRoute) : Completable
 
