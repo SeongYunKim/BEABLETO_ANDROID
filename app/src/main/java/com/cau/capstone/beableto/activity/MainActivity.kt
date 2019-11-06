@@ -2,7 +2,10 @@ package com.cau.capstone.beableto.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -20,14 +23,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
-//import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
+import com.cau.capstone.beableto.service.LocationService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var gentle_marker: Boolean = true
     private lateinit var fab_open: Animation
     private lateinit var fab_close: Animation
-    private var isFabOpen : Boolean = false;
+    private var isFabOpen: Boolean = false;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +127,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             getMarkerInfo(getMapBound())
         }
         */
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) !== PackageManager.PERMISSION_GRANTED
+        ) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            ) {
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    110
+                )
+            }
+        }
+
+        startTracking()
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("intent_action"))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -350,7 +376,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun anim() {
-        if(isFabOpen) {
+        if (isFabOpen) {
             fab1.startAnimation(fab_close)
             fab2.startAnimation(fab_close)
             fab3.startAnimation(fab_close)
@@ -367,5 +393,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             fab3.isClickable = false
             isFabOpen = true
         }
+    }
+
+    private val mMessageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // Get extra data included in the Intent
+            val latitude = intent.getDoubleExtra("latitude", 0.0)
+            val longitude = intent.getDoubleExtra("longitude", 0.0)
+            Log.d("Receive", "$latitude $longitude")
+            Toast.makeText(applicationContext, "$latitude $longitude", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun startTracking() {
+        startForegroundService(Intent(this, LocationService::class.java))
     }
 }
