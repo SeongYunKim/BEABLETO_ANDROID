@@ -14,6 +14,7 @@ import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.Coordinate
 import com.cau.capstone.beableto.data.RequestRegisterRoute
+import com.cau.capstone.beableto.data.RequestRoute
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -43,6 +44,7 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
     private var longitude_list: MutableList<Float> = ArrayList()
     private var coordinate_list: MutableList<Coordinate> = ArrayList()
     private var middle_num = 0
+    private var is_first = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +71,27 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
                 end_latitude!!.toDouble(),
                 end_longitude!!.toDouble()
             )
+
+            val requestMIddlePoint =
+                RequestRoute(start_latitude!!, start_longitude!!, end_latitude!!, end_longitude!!)
+            NetworkCore.getNetworkCore<BEABLETOAPI>()
+                .requestMiddlePoint(
+                    SharedPreferenceController.getAuthorization(this), requestMIddlePoint
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response ->
+                    for (p in response.path) {
+                        latitude_list.add(p.x_axis)
+                        longitude_list.add(p.y_axis)
+                        mMap.clear()
+                        drawPolyLine(is_first)
+                        mMap.addMarker(MarkerOptions().position(start_latlng!!).title("시작점"))
+                        mMap.addMarker(MarkerOptions().position(end_latlng!!).title("도착점"))
+                    }
+                }, {
+                    Log.d("Middle_Point_Error", Log.getStackTraceString(it))
+                })
         }
 
         btn_register_route_previous3.setOnClickListener {
@@ -80,7 +103,10 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
                 val coordinate = Coordinate(latitude_list[i], longitude_list[i])
                 coordinate_list.add(coordinate)
             }
-            coordinate_list.add(Coordinate(end_latitude!!, end_longitude!!))
+            //TODO 조건 확인
+            if(!is_first){
+                coordinate_list.add(Coordinate(end_latitude!!, end_longitude!!))
+            }
 
             val requestRegisterRoute = RequestRegisterRoute(coordinate_list, slope!!)
             NetworkCore.getNetworkCore<BEABLETOAPI>()
@@ -137,6 +163,33 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
         }
         */
 
+        btn_direct_add_middle.setOnClickListener {
+            latitude_list.clear()
+            longitude_list.clear()
+            val start_marker = mMap.addMarker(MarkerOptions().position(start_latlng!!).title("시작점"))
+            val end_marker = mMap.addMarker(MarkerOptions().position(end_latlng!!).title("도착점"))
+            mMap.addPolyline(
+                PolylineOptions().add(start_latlng, end_latlng).width(10.0F).color(
+                    Color.RED
+                )
+            )
+            latitude_list.add(start_latitude!!)
+            longitude_list.add(start_longitude!!)
+            val bound_markers_list: MutableList<Marker> = ArrayList()
+            val padding = 100
+            bound_markers_list.add(start_marker)
+            bound_markers_list.add(end_marker)
+            val builder = LatLngBounds.Builder()
+            for (m in bound_markers_list) {
+                builder.include(m.position)
+            }
+            val bounds = builder.build()
+            cu = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+            mMap.animateCamera(cu)
+            is_first = false
+            btn_direct_add_middle.visibility = View.GONE
+        }
+
         btn_add_middle.setOnClickListener {
             val center = mMap.cameraPosition.target
             middle_latitude = center.latitude.toFloat()
@@ -144,7 +197,7 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
             latitude_list.add(middle_latitude!!)
             longitude_list.add(middle_longitude!!)
             mMap.clear()
-            val before_latlng = drawPolyLine()
+            val before_latlng = drawPolyLine(is_first)
             mMap.addMarker(MarkerOptions().position(end_latlng!!))
             mMap.addPolyline(
                 PolylineOptions().add(before_latlng, end_latlng).width(10.0F).color(
@@ -152,20 +205,14 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
                 )
             )
             middle_num++
-            /*
-            center_marker3.visibility = View.VISIBLE
-            is_rest_middle = true
-            btn_register_route_next3.setTextColor(Color.parseColor("#909090"))
-            */
         }
-
 
         btn_delete_middle.setOnClickListener {
             if (middle_num > 0) {
                 latitude_list.removeAt(middle_num)
                 longitude_list.removeAt(middle_num)
                 mMap.clear()
-                val before_latlng = drawPolyLine()
+                val before_latlng = drawPolyLine(is_first)
                 mMap.addMarker(MarkerOptions().position(end_latlng!!))
                 mMap.addPolyline(
                     PolylineOptions().add(before_latlng, end_latlng).width(10.0F).color(
@@ -185,16 +232,9 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
         val INIT = LatLng(37.50352, 126.95706)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
         mMap.isMyLocationEnabled = true
-        val bound_markers_list: MutableList<Marker> = ArrayList()
         val start_marker = mMap.addMarker(MarkerOptions().position(start_latlng!!).title("시작점"))
         val end_marker = mMap.addMarker(MarkerOptions().position(end_latlng!!).title("도착점"))
-        mMap.addPolyline(
-            PolylineOptions().add(start_latlng, end_latlng).width(10.0F).color(
-                Color.RED
-            )
-        )
-        latitude_list.add(start_latitude!!)
-        longitude_list.add(start_longitude!!)
+        val bound_markers_list: MutableList<Marker> = ArrayList()
         val padding = 100
         bound_markers_list.add(start_marker)
         bound_markers_list.add(end_marker)
@@ -236,45 +276,49 @@ class RegisterRouteActivity3 : AppCompatActivity(), OnMapReadyCallback {
         }
 
         mMap.setOnCameraIdleListener {
-            var before_latlng: LatLng
-            val center = mMap.cameraPosition.target
-            middle_latlng = LatLng(center.latitude, center.longitude)
-            mMap.clear()
-            before_latlng = drawPolyLine()
+            if (!is_first) {
+                var before_latlng: LatLng
+                val center = mMap.cameraPosition.target
+                middle_latlng = LatLng(center.latitude, center.longitude)
+                mMap.clear()
+                before_latlng = drawPolyLine(is_first)
 
-            val middle_marker = mMap.addMarker(
-                MarkerOptions().position(middle_latlng!!).icon(
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                val middle_marker = mMap.addMarker(
+                    MarkerOptions().position(middle_latlng!!).icon(
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                    )
                 )
-            )
-            middle_marker.isVisible = false
+                middle_marker.isVisible = false
 
-            mMap.addMarker(MarkerOptions().position(end_latlng!!))
-            mMap.addPolyline(
-                PolylineOptions().add(before_latlng, middle_latlng).width(10.0F).color(
-                    Color.RED
+                mMap.addMarker(MarkerOptions().position(end_latlng!!))
+                mMap.addPolyline(
+                    PolylineOptions().add(before_latlng, middle_latlng).width(10.0F).color(
+                        Color.RED
+                    )
                 )
-            )
-            mMap.addPolyline(
-                PolylineOptions().add(middle_latlng, end_latlng).width(10.0F).color(
-                    Color.RED
+                mMap.addPolyline(
+                    PolylineOptions().add(middle_latlng, end_latlng).width(10.0F).color(
+                        Color.RED
+                    )
                 )
-            )
-            register_route_info3.text = "중간점을 설정해 도로를 매끄럽게 연결하세요"
+                register_route_info3.text = "중간점을 설정해 도로를 매끄럽게 연결하세요"
+            }
         }
     }
 
-    private fun drawPolyLine(): LatLng {
+    private fun drawPolyLine(is_first: Boolean): LatLng {
         var before_latlng: LatLng? = null
         var current_latlng: LatLng
         for (i in latitude_list.indices) {
             current_latlng =
                 LatLng(latitude_list[i].toDouble(), longitude_list[i].toDouble())
-            mMap.addMarker(
-                MarkerOptions().position(
-                    current_latlng
+            if (!is_first) {
+                mMap.addMarker(
+                    MarkerOptions().position(
+                        current_latlng
+                    )
                 )
-            )
+            }
             if (i != 0) {
                 mMap.addPolyline(
                     PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(

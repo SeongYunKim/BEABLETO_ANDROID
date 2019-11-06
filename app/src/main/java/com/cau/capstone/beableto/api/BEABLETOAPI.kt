@@ -37,5 +37,9 @@ interface BEABLETOAPI {
     fun requestRegisterRoute(@Header("Authorization") authorization: String?,
                              @Body body: RequestRegisterRoute) : Completable
 
+    @POST("/information/basewalk/")
+    fun requestMiddlePoint(@Header("Authorization") authorization: String?,
+                           @Body body: RequestRoute) : Single<ResponseMiddlePoint>
+
     //로그아웃 "/accounts/logout/"
 }
