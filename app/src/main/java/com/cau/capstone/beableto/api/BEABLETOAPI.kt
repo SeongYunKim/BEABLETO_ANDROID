@@ -45,5 +45,10 @@ interface BEABLETOAPI {
     fun requestAdmin(@Header("Authorization") authorization: String?,
                      @Body body: RequestRoute) : Single<ResponseAdmin>
 
+    //TODO URL 입력
+    @POST("/")
+    fun requestRegisterRealTimeLocation(@Header("Authorization") authorization: String?,
+                                        @Body body: RequestRegisterRealTimeLocation) : Completable
+
     //로그아웃 "/accounts/logout/"
 }

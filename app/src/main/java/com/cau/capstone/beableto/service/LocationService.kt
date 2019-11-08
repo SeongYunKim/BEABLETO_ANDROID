@@ -12,6 +12,7 @@ import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.activity.RecordActivity
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
@@ -56,10 +57,10 @@ class LocationService : Service() {
 
     private fun startTracking() {
         val locationRequest = LocationRequest.create()
-        locationRequest.setInterval(5 * 1000)
-        locationRequest.setFastestInterval(5 * 1000)
-        locationRequest.setSmallestDisplacement(5.0F)
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationRequest.setInterval(1 * 1000)
+        locationRequest.setFastestInterval(1 * 1000)
+        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY)
+        locationRequest.setSmallestDisplacement(20.0F)
 
         try {
             LocationServices.getFusedLocationProviderClient(applicationContext)

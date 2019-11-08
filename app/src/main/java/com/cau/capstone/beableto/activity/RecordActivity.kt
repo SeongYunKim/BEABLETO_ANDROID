@@ -6,26 +6,53 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.api.BEABLETOAPI
+import com.cau.capstone.beableto.api.NetworkCore
+import com.cau.capstone.beableto.data.RequestRegisterRealTimeLocation
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.cau.capstone.beableto.service.LocationService
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_record.*
 import kotlinx.android.synthetic.main.activity_record.switch_realtime_gps
+import java.time.LocalDate
+import java.time.LocalDateTime
 
-class RecordActivity : AppCompatActivity() {
+class RecordActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private lateinit var mMap: GoogleMap
+    private lateinit var lastLocation: Location
+    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+    private var map_loaded: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record)
 
-        switch_realtime_gps.isChecked = SharedPreferenceController.getRealTimeGps(this@RecordActivity)
+        val mapFragment =
+            supportFragmentManager.findFragmentById(R.id.map_record) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        switch_realtime_gps.isChecked =
+            SharedPreferenceController.getRealTimeGps(this@RecordActivity)
         record_1h_view.isSelected = true
 
         record_1h.setOnClickListener {
@@ -81,7 +108,10 @@ class RecordActivity : AppCompatActivity() {
                 stopService(Intent(this, LocationService::class.java))
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver)
             }
-            SharedPreferenceController.setRealTimeGps(this@RecordActivity, switch_realtime_gps.isChecked)
+            SharedPreferenceController.setRealTimeGps(
+                this@RecordActivity,
+                switch_realtime_gps.isChecked
+            )
         }
     }
 
@@ -110,9 +140,73 @@ class RecordActivity : AppCompatActivity() {
 
     private val mMessageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            val currentDate = LocalDateTime.now()
             val latitude = intent.getDoubleExtra("latitude", 0.0)
             val longitude = intent.getDoubleExtra("longitude", 0.0)
+            if (map_loaded) {
+                mMap.addMarker(
+                    MarkerOptions().position(
+                        LatLng(
+                            latitude!!.toDouble(),
+                            longitude!!.toDouble()
+                        )
+                    )
+                )
+            }
+
+            val requestRegisterRealTimeLocation = RequestRegisterRealTimeLocation(
+                currentDate.monthValue,
+                currentDate.dayOfMonth,
+                currentDate.hour,
+                currentDate.minute,
+                latitude.toFloat(),
+                longitude.toFloat()
+            )
+
+            NetworkCore.getNetworkCore<BEABLETOAPI>()
+                .requestRegisterRealTimeLocation(
+                    SharedPreferenceController.getAuthorization(this@RecordActivity),
+                    requestRegisterRealTimeLocation
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    Log.d("RealTimeLocation_Register_Success", "Success")
+                }, {
+                    Log.d("RealTimeLocation_Register_Error", Log.getStackTraceString(it))
+                })
             Toast.makeText(applicationContext, "$latitude $longitude", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        val INIT = LatLng(37.50352, 126.95706)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
+        mMap.isMyLocationEnabled = true
+        getDeviceLocation()
+        mapLoadedCallBack()
+    }
+
+    private fun getDeviceLocation() {
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        try {
+            mFusedLocationProviderClient.lastLocation.addOnSuccessListener(this) { location ->
+                if (location != null) {
+                    lastLocation = location
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18.0F))
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun mapLoadedCallBack() {
+        mMap.setOnMapLoadedCallback {
+            map_loaded = true
         }
     }
 }
