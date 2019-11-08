@@ -2,7 +2,10 @@ package com.cau.capstone.beableto.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -20,14 +23,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
-//import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
+import com.cau.capstone.beableto.service.LocationService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -55,7 +59,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var gentle_marker: Boolean = true
     private lateinit var fab_open: Animation
     private lateinit var fab_close: Animation
-    private var isFabOpen : Boolean = false;
+    private var isFabOpen: Boolean = false;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,6 +98,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         drawer_admin.setOnClickListener {
             val intent = Intent(this, AdminActivity::class.java)
+            startActivity(intent)
+        }
+
+        drawer_mypage.setOnClickListener {
+            val intent = Intent(this, RecordActivity::class.java)
             startActivity(intent)
         }
 
@@ -355,7 +364,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun anim() {
-        if(isFabOpen) {
+        if (isFabOpen) {
             fab1.startAnimation(fab_close)
             fab2.startAnimation(fab_close)
             fab3.startAnimation(fab_close)
