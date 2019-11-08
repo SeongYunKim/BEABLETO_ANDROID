@@ -96,6 +96,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(intent, SETTING)
         }
 
+        drawer_mypage.setOnClickListener {
+            val intent = Intent(this, RecordActivity::class.java)
+            startActivity(intent)
+        }
+
         ic_menu.setOnClickListener {
             if (!drawer.isDrawerOpen(Gravity.LEFT)) {
                 drawer.openDrawer(Gravity.LEFT)
@@ -127,28 +132,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             getMarkerInfo(getMapBound())
         }
         */
-
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) !== PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    110
-                )
-            }
-        }
-
-        startTracking()
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("intent_action"))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -393,19 +376,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             fab3.isClickable = false
             isFabOpen = true
         }
-    }
-
-    private val mMessageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            // Get extra data included in the Intent
-            val latitude = intent.getDoubleExtra("latitude", 0.0)
-            val longitude = intent.getDoubleExtra("longitude", 0.0)
-            Log.d("Receive", "$latitude $longitude")
-            Toast.makeText(applicationContext, "$latitude $longitude", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun startTracking() {
-        startForegroundService(Intent(this, LocationService::class.java))
     }
 }

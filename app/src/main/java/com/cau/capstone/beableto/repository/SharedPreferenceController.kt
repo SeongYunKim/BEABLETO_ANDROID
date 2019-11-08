@@ -7,12 +7,14 @@ object SharedPreferenceController {
 
     private val USER_NAME: String = "USERNAME"
     private val USER_NAME2: String = "USERNAME2"
+    private val USER_NAME3: String = "USERNAME3"
     private val KEY1: String = "KEY1"
     private val KEY2: String = "KEY2"
     private val KEY3: String = "KEY3"
     private val KEY4: String = "KEY4"
     private val KEY5: String = "KEY5"
     private val KEY6: String = "KEY6"
+    private val KEY7: String = "KEY7"
     private var token: String? = ""
     private var isLogin: Boolean = false
 
@@ -51,6 +53,20 @@ object SharedPreferenceController {
         val route: Boolean = pref.getBoolean(KEY6, true)
         var setting = Setting(stair, sharp, gentle, route)
         return setting
+    }
+
+    fun setRealTimeGps(context: Context, real_time_gps: Boolean){
+        val pref = context.getSharedPreferences(USER_NAME3, Context.MODE_PRIVATE)
+        pref.edit().clear().apply()
+        val editor = pref.edit()
+        editor.putBoolean(KEY7, real_time_gps)
+        editor.commit()
+    }
+
+    fun getRealTimeGps(context: Context) : Boolean {
+        val pref = context.getSharedPreferences(USER_NAME3, Context.MODE_PRIVATE)
+        val real_time_gps = pref.getBoolean(KEY7, true)
+        return real_time_gps
     }
 
     fun getIsLogin(context : Context) : Boolean {
