@@ -41,5 +41,9 @@ interface BEABLETOAPI {
     fun requestMiddlePoint(@Header("Authorization") authorization: String?,
                            @Body body: RequestRoute) : Single<ResponseMiddlePoint>
 
+    @POST("/information/getpaths/")
+    fun requestAdmin(@Header("Authorization") authorization: String?,
+                     @Body body: RequestRoute) : Single<ResponseAdmin>
+
     //로그아웃 "/accounts/logout/"
 }

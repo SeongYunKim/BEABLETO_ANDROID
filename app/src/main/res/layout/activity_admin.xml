@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/admin_start_x"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="30dp"
+                    android:hint="start_x"
+                    android:text="37.505108"
+                    android:textSize="16sp"
+                    android:theme="@style/EditTextStyle" />
+
+                <EditText
+                    android:id="@+id/admin_start_y"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="30dp"
+                    android:hint="start_y"
+                    android:text="126.95354"
+                    android:textSize="16sp"
+                    android:theme="@style/EditTextStyle" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/admin_end_x"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="30dp"
+                android:hint="end_x"
+                android:text="37.504635"
+                android:textSize="16sp"
+                android:theme="@style/EditTextStyle" />
+
+            <EditText
+                android:id="@+id/admin_end_y"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="30dp"
+                android:hint="end_y"
+                android:text="126.95068"
+                android:textSize="16sp"
+                android:theme="@style/EditTextStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/admin_route1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="경로1" />
+
+            <Button
+                android:id="@+id/admin_route2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="경로2" />
+
+            <Button
+                android:id="@+id/admin_route3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="경로3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/admin_route4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="경로4" />
+
+            <Button
+                android:id="@+id/admin_route5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="경로5" />
+
+            <Button
+                android:id="@+id/admin_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="검색" />
+        </LinearLayout>
+
+        <fragment
+            android:id="@+id/map_admin"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+</layout>

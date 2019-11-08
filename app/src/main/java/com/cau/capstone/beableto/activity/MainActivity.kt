@@ -92,6 +92,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(intent, SETTING)
         }
 
+        drawer_admin.setOnClickListener {
+            val intent = Intent(this, AdminActivity::class.java)
+            startActivity(intent)
+        }
+
         ic_menu.setOnClickListener {
             if (!drawer.isDrawerOpen(Gravity.LEFT)) {
                 drawer.openDrawer(Gravity.LEFT)
