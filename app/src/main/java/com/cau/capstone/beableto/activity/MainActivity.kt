@@ -96,10 +96,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(intent, SETTING)
         }
 
+        /////////////////////////////////////////////////////////////////////////////
         drawer_admin.setOnClickListener {
-            val intent = Intent(this, AdminActivity::class.java)
+            val intent = Intent(this, RegisterRouteActivity::class.java)
+            intent.putExtra("admin", true)
             startActivity(intent)
         }
+        /////////////////////////////////////////////////////////////////////////////
 
         drawer_mypage.setOnClickListener {
             val intent = Intent(this, RecordActivity::class.java)

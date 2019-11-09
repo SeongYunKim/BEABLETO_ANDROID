@@ -136,7 +136,15 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     end_latitude = center.latitude.toFloat()
                     end_longitude = center.longitude.toFloat()
 
-                    val intent = Intent(this, RegisterRouteActivity3::class.java)
+                    /////////////////////////////////////////////////////////////////////////////
+                    val admin = intent.getBooleanExtra("admin", false)
+                    var intent = Intent()
+                    if(!admin){
+                        intent = Intent(this, RegisterRouteActivity3::class.java)
+                    } else{
+                        intent = Intent(this, AdminActivity::class.java)
+                    }
+                    /////////////////////////////////////////////////////////////////////////////
                     intent.putExtra("slope", slope)
                     intent.putExtra("start_latitude", start_latitude!!)
                     intent.putExtra("start_longitude", start_longitude!!)

@@ -33,31 +33,34 @@ class AdminActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var longitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var bus_latitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var bus_longitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var train_latitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var train_longitude_list: MutableList<MutableList<Float>> = ArrayList()
+
     private var slope_list: MutableList<MutableList<Int>> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin)
 
-        latitude_list.add(mutableListOf(0.0F))
-        latitude_list.add(mutableListOf(0.0F))
-        latitude_list.add(mutableListOf(0.0F))
-        latitude_list.add(mutableListOf(0.0F))
-        latitude_list.add(mutableListOf(0.0F))
+        admin_start_x.setText(intent.getFloatExtra("start_latitude", 0.0F).toString())
+        admin_start_y.setText(intent.getFloatExtra("start_longitude", 0.0F).toString())
+        admin_end_x.setText(intent.getFloatExtra("end_latitude", 0.0F).toString())
+        admin_end_y.setText(intent.getFloatExtra("end_longitude", 0.0F).toString())
 
-        longitude_list.add(mutableListOf(0.0F))
-        longitude_list.add(mutableListOf(0.0F))
-        longitude_list.add(mutableListOf(0.0F))
-        longitude_list.add(mutableListOf(0.0F))
-        longitude_list.add(mutableListOf(0.0F))
+        for (x in 0 until 5) {
+            latitude_list.add(mutableListOf(0.0F))
+            longitude_list.add(mutableListOf(0.0F))
+            slope_list.add(mutableListOf(0))
+            bus_latitude_list.add(mutableListOf(0.0F))
+            bus_longitude_list.add(mutableListOf(0.0F))
+            train_latitude_list.add(mutableListOf(0.0F))
+            train_longitude_list.add(mutableListOf(0.0F))
+        }
 
-        slope_list.add(mutableListOf(0))
-        slope_list.add(mutableListOf(0))
-        slope_list.add(mutableListOf(0))
-        slope_list.add(mutableListOf(0))
-        slope_list.add(mutableListOf(0))
-
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_admin) as SupportMapFragment
+        val mapFragment =
+            supportFragmentManager.findFragmentById(R.id.map_admin) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         admin_search.setOnClickListener {
@@ -76,24 +79,36 @@ class AdminActivity : AppCompatActivity(), OnMapReadyCallback {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
                     Log.d("SSibal", response.toString())
+                    Log.d("SSibal_latitude", latitude_list[0].toString())
                     for (ps in response.paths.indices) {
-                        for (p in response.paths[ps].path){
+                        for (p in response.paths[ps].path) {
                             if (p.type == "walk") {
                                 var is_first: Boolean = true
                                 //latitude_list.add(ps.walk_start_x!!)
                                 //longitude_list.add(ps.walk_start_y!!)
                                 for (ws in p.walk_seq) {
-                                    if (is_first) {
+                                    //if (is_first) {
                                         latitude_list[ps].add(ws.start_x!!)
                                         longitude_list[ps].add(ws.start_y!!)
-                                        is_first = false
-                                    }
+                                        //is_first = false
+                                    //}
                                     latitude_list[ps].add(ws.end_x!!)
                                     longitude_list[ps].add(ws.end_y!!)
                                     slope_list[ps].add(ws.slope)
                                 }
+                                //slope_list[ps].add(0)
                                 //latitude_list.add(ps.walk_end_x!!)
                                 //longitude_list.add(ps.walk_end_y!!)
+                            } else if (p.type == "bus") {
+                                bus_latitude_list[ps].add(p.bus_start_x!!)
+                                bus_longitude_list[ps].add(p.bus_start_y!!)
+                                bus_latitude_list[ps].add(p.bus_end_x!!)
+                                bus_longitude_list[ps].add(p.bus_end_y!!)
+                            } else if (p.type == "train") {
+                                train_latitude_list[ps].add(p.train_start_x!!)
+                                train_longitude_list[ps].add(p.train_start_y!!)
+                                train_latitude_list[ps].add(p.train_end_x!!)
+                                train_longitude_list[ps].add(p.train_end_y!!)
                             }
                         }
                     }
@@ -162,36 +177,72 @@ class AdminActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun drawPolyLine(num: Int): LatLng {
         var before_latlng: LatLng? = null
         var current_latlng: LatLng
-        for (i in latitude_list.indices) {
+        Log.d("latitude_list", latitude_list[num].size.toString())
+        Log.d("latitude_list/slope", slope_list[num].size.toString())
+        for (i in latitude_list[num].indices) {
             if (i != 0) {
                 current_latlng =
                     LatLng(latitude_list[num][i].toDouble(), longitude_list[num][i].toDouble())
-                if (i != 1) {
-                    if (slope_list[num][i - 1] == 0) {
+                if (i % 2 == 0) {
+                    if (slope_list[num][i / 2] == 0) {
                         mMap.addPolyline(
                             PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                                 Color.YELLOW
                             )
                         )
-                    } else if (slope_list[num][i - 1] == 1) {
+                    } else if (slope_list[num][i / 2] == 1) {
                         mMap.addPolyline(
                             PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                                 Color.RED
                             )
                         )
-                    } else if (slope_list[num][i - 1] == 2) {
+                    } else if (slope_list[num][i / 2] == 2) {
                         mMap.addPolyline(
                             PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                                 Color.BLACK
                             )
                         )
-                    } else if (slope_list[num][i - 1] == 3) {
+                    } else if (slope_list[num][i / 2] == 3) {
                         mMap.addPolyline(
                             PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                                 Color.GREEN
                             )
                         )
                     }
+                }
+                before_latlng = current_latlng
+            }
+        }
+        for (i in bus_latitude_list[num].indices) {
+            if (i != 0) {
+                current_latlng =
+                    LatLng(
+                        bus_latitude_list[num][i].toDouble(),
+                        bus_longitude_list[num][i].toDouble()
+                    )
+                if (i % 2 == 0) {
+                    mMap.addPolyline(
+                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                            Color.BLUE
+                        )
+                    )
+                }
+                before_latlng = current_latlng
+            }
+        }
+        for (i in train_latitude_list[num].indices) {
+            if (i != 0) {
+                current_latlng =
+                    LatLng(
+                        train_latitude_list[num][i].toDouble(),
+                        train_longitude_list[num][i].toDouble()
+                    )
+                if (i % 2 == 0) {
+                    mMap.addPolyline(
+                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                            Color.BLUE
+                        )
+                    )
                 }
                 before_latlng = current_latlng
             }
