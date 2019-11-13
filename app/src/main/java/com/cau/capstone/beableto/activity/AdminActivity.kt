@@ -240,7 +240,7 @@ class AdminActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (i % 2 == 0) {
                     mMap.addPolyline(
                         PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
-                            Color.BLUE
+                            Color.CYAN
                         )
                     )
                 }
