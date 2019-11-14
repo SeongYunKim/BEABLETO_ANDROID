@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/route_src_dest_search"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/white_border"
+            android:elevation="10dp">
+
+            <ImageView
+                android:id="@+id/ic_magnify"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_magnify" />
+
+            <EditText
+                android:id="@+id/et_route_src_dest_search1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="7dp"
+                android:layout_toRightOf="@id/ic_magnify"
+                android:background="@null"
+                android:hint="출발지 검색"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/colorBlack"
+                android:textSize="17sp" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/autocomplete_listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textFilterEnabled="true" />
+
+    </LinearLayout>
+</layout>
