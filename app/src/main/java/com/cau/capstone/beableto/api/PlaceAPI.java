@@ -1,5 +1,7 @@
 package com.cau.capstone.beableto.api;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class PlaceAPI {
-
     public ArrayList<String> autoComplete(String input) {
         ArrayList<String> arrayList = new ArrayList();
         HttpURLConnection connection = null;
@@ -42,15 +43,28 @@ public class PlaceAPI {
         }
 
         try {
+            arrayList.add(input);
+            ArrayList<String> termList = new ArrayList();
+            String term = "";
             JSONObject jsonObject = new JSONObject(jsonResult.toString());
             JSONArray prediction = jsonObject.getJSONArray("predictions");
             for (int i = 0; i < prediction.length(); i++) {
-                arrayList.add(prediction.getJSONObject(i).getString("description"));
+                term = "";
+                termList.clear();
+                JSONArray terms = prediction.getJSONObject(i).getJSONArray("terms");
+                for (int j = 0; j < terms.length(); j++) {
+                    if (!terms.getJSONObject(j).getString("value").equals("대한민국")) {
+                        termList.add(terms.getJSONObject(j).getString("value"));
+                    }
+                }
+                for (int k = termList.size() - 1; k >= 0; k--) {
+                    term = term + " " + termList.get(k);
+                }
+                arrayList.add(term);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return arrayList;
     }
 }

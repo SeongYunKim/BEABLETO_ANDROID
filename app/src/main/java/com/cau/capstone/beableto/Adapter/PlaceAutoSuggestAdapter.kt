@@ -16,7 +16,11 @@ class PlaceAutoSuggestAdapter(context: Context, resID: Int) : ArrayAdapter<Strin
     }
 
     override fun getItem(position: Int): String? {
-        return result[position]
+        try{
+            return result[position]
+        } catch(e: Exception){
+            return ""
+        }
     }
 
     override fun getFilter(): Filter {
