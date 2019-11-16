@@ -31,7 +31,7 @@
                 android:layout_marginLeft="7dp"
                 android:layout_toRightOf="@id/ic_magnify"
                 android:background="@null"
-                android:hint="출발지 검색"
+                android:hint="장소 찾기"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"

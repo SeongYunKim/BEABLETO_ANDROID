@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="12dp"
             android:text="부어치킨 중앙대후문점"
             android:textColor="@color/colorBlack"
             android:textSize="18sp" />

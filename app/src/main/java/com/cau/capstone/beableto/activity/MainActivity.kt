@@ -2,10 +2,7 @@ package com.cau.capstone.beableto.activity
 
 import android.Manifest
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -15,15 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.KeyEvent
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.view.inputmethod.EditorInfo
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
@@ -31,7 +23,6 @@ import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
-import com.cau.capstone.beableto.service.LocationService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -240,7 +231,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             getMarkerInfo(getMapBound())
         }
 
+        et_main_place_search.setOnClickListener{
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            startActivity(intent)
+        }
 
+        /*
         et_main_place_search.setOnEditorActionListener(
             object : TextView.OnEditorActionListener {
                 override fun onEditorAction(
@@ -255,6 +251,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         )
+        */
     }
 
     private fun getDeviceLocation() {

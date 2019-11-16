@@ -1,6 +1,5 @@
 package com.cau.capstone.beableto.api;
 
-import android.os.Message;
 import android.util.Log;
 
 import com.cau.capstone.beableto.data.Location;
@@ -25,6 +24,7 @@ public class PlaceAPI {
             StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/autocomplete/json?");
             sb.append("input=" + input);
             sb.append("&language=ko&key=AIzaSyDoeoufnh8GwLum7g57Q4P3LACvSYehwow");
+            //sb.append("&language=ko&components=country:ko&key=AIzaSyDoeoufnh8GwLum7g57Q4P3LACvSYehwow");
             URL url = new URL(sb.toString());
             connection = (HttpURLConnection) url.openConnection();
             InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
@@ -45,7 +45,7 @@ public class PlaceAPI {
         }
 
         try {
-            arrayList.add(input);
+            arrayList.add(" " + input);
             ArrayList<String> termList = new ArrayList();
             String term = "";
             JSONObject jsonObject = new JSONObject(jsonResult.toString());
@@ -81,7 +81,7 @@ public class PlaceAPI {
                 try {
                     StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/textsearch/json?");
                     sb.append("query=" + finalInput);
-                    sb.append("&language=ko&key=AIzaSyDoeoufnh8GwLum7g57Q4P3LACvSYehwow");
+                    sb.append("&language=ko&region=kr&key=AIzaSyDoeoufnh8GwLum7g57Q4P3LACvSYehwow");
                     URL url = new URL(sb.toString());
                     connection = (HttpURLConnection) url.openConnection();
                     InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
