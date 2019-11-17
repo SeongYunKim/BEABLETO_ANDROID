@@ -8,10 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import com.cau.capstone.beableto.Adapter.LocationSelectAdapter
+import com.cau.capstone.beableto.Adapter.LocationSelectPagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.PlaceAPI
 import com.cau.capstone.beableto.data.Location
+import com.cau.capstone.beableto.fragment.LocationSelectFragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -36,6 +39,13 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             supportFragmentManager.findFragmentById(R.id.map_select_location) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        viewpager_select_location.clipToPadding = false
+        val dp_value = 60
+        val d = resources.displayMetrics.density
+        val margin = (dp_value + d).toInt()
+        viewpager_select_location.setPadding(margin, 0, margin, 0)
+        viewpager_select_location.pageMargin = margin/2
+
         recyclerview_select_location.setOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -51,7 +61,9 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (e.action == MotionEvent.ACTION_UP && item_touch) {
                         val position = rv.getChildAdapterPosition(child)
                         recyclerview_select_location.visibility = View.GONE
-                        recyclerview_select_location.visibility = View.VISIBLE
+                        //recyclerview_select_location.visibility = View.VISIBLE
+                        viewpager_select_location.visibility = View.VISIBLE
+                        viewpager_select_location.currentItem = position
                         val selected_location = LatLng(
                             list[position].latitude.toDouble(),
                             list[position].longitude.toDouble()
@@ -67,6 +79,26 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
 
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        })
+
+        viewpager_select_location.addOnPageChangeListener(object: ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {}
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {}
+
+            override fun onPageSelected(position: Int) {
+                val selected_location = LatLng(
+                    list[position].latitude.toDouble(),
+                    list[position].longitude.toDouble()
+                )
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selected_location, 18.0F))
+                mMap.clear()
+                mMap.addMarker(MarkerOptions().position(selected_location).title(list[position].name))
+            }
         })
     }
 
@@ -96,6 +128,18 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 LatLng(list[0].latitude.toDouble(), list[0].longitude.toDouble())
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
             mMap.addMarker(MarkerOptions().position(first_location).title(list[0].name))
+
+            val location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
+            viewpager_select_location.adapter = location_select_pager_adapter
+            for(i in list){
+                val location_select_fragment = LocationSelectFragment()
+                val bundle = Bundle()
+                bundle.putSerializable("location_info", i)
+                //bundle.putString("name", i.name)
+                location_select_fragment.arguments = bundle
+                location_select_pager_adapter.addItem(location_select_fragment)
+            }
+            location_select_pager_adapter.notifyDataSetChanged()
         }
     }
 }

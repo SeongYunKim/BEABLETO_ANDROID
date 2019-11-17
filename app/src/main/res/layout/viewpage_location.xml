@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorGray" />
+
+            <TextView
+                android:id="@+id/vp_location_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="12dp"
+                android:text="부어치킨 중앙대후문점"
+                android:textColor="@color/colorBlack"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/vp_location_address"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="3dp"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:text="서울특별시 동작구 흑석로84"
+                android:textColor="@color/colorBlack"
+                android:textSize="17sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="접근로 경사: "
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/vp_location_slope"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="정보 없음"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/vp_location_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="치킨, 강정"
+                    android:textColor="@color/colorGrayDark"
+                    android:textSize="17sp" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@color/colorGrayDark" />
+
+                <TextView
+                    android:id="@+id/vp_location_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="평점: 4.8 / 5.0"
+                    android:textColor="@color/colorGrayDark"
+                    android:textSize="17sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/colorGray" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp">
+
+                <Button
+                    android:id="@+id/btn_end"
+                    android:layout_width="90dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/round"
+                    android:backgroundTint="@color/colorBlue"
+                    android:text="도착"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="17sp" />
+
+                <Button
+                    android:id="@+id/btn_start"
+                    android:layout_width="90dp"
+                    android:layout_height="35dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@id/btn_end"
+                    android:background="@drawable/round_with_line"
+                    android:text="출발"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorGray" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="190dp"
+            android:layout_alignParentLeft="true"
+            android:background="@color/colorGray" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="190dp"
+            android:layout_alignParentRight="true"
+            android:background="@color/colorGray" />
+    </RelativeLayout>
+</layout>

@@ -50,6 +50,7 @@ dependencies {
     implementation "androidx.drawerlayout:drawerlayout:1.0.0"
     implementation 'com.google.android.material:material:1.0.0-rc01'
     implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.viewpager:viewpager:1.0.0"
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0' // 레트로핏 라이브러리
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0' // 레트로핏과 rx 같이 쓸수있게 도와주는 라이브러리

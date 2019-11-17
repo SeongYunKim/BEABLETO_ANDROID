@@ -1,5 +1,7 @@
 package com.cau.capstone.beableto.data
 
+import java.io.Serializable
+
 data class Location (
     val latitude: Float,
     val longitude: Float,
@@ -8,4 +10,4 @@ data class Location (
     val rate: Float?,
     val place_id: String,
     val types: List<String>?
-)
+):Serializable
