@@ -27,7 +27,9 @@ class LocationSelectAdapter(item: ArrayList<Location>) :
             with(holder) {
                 tv_location_name.text = item.name
                 tv_location_address.text = item.address
-                tv_location_type.text = "치킨, 강정"
+                tv_location_type.text = "카페, 커피"
+                if(item.rate == null)
+                    item.rate = 5.0F
                 tv_location_rating.text = "평점: " + item.rate.toString() + " / 5.0"
             }
         }

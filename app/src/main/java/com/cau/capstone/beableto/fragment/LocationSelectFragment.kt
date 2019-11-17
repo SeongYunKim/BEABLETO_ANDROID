@@ -24,9 +24,11 @@ class LocationSelectFragment: Fragment() {
         val view = inflater.inflate(R.layout.viewpage_location, container, false)
         view.vp_location_name.text = location_info!!.name
         view.vp_location_address.text = location_info!!.address
-        view.vp_location_rating.text = location_info!!.rate.toString()
+        if(location_info!!.rate == null)
+            location_info!!.rate = 5.0F
+        view.vp_location_rating.text = "평점: " + location_info!!.rate.toString() + " / 5.0"
         view.vp_location_slope.text = "정보 없음"
-        view.vp_location_type.text = "치킨, 강정"
+        view.vp_location_type.text = "카페, 커피"
         return view
     }
 

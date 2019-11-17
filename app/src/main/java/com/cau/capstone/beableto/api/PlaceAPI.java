@@ -106,12 +106,13 @@ public class PlaceAPI {
                     for (int i = 0; i < results.length(); i++) {
                         JSONObject iterjsonObject = results.getJSONObject(i);
                         String address = null, name = null, place_id = null;
-                        Float latitude, longitude, rate;
+                        Float latitude, longitude, rate = null;
                         //ArrayList<String> typesList = new ArrayList();
                         address = results.getJSONObject(i).getString("formatted_address");
                         name = iterjsonObject.getString("name");
                         place_id = iterjsonObject.getString("place_id");
-                        rate = Float.parseFloat(iterjsonObject.getString("rating"));
+                        if(iterjsonObject.has("rating"))
+                            rate = Float.parseFloat(iterjsonObject.getString("rating"));
                         latitude = Float.parseFloat(iterjsonObject.getJSONObject("geometry").getJSONObject("location").getString("lat"));
                         longitude = Float.parseFloat(iterjsonObject.getJSONObject("geometry").getJSONObject("location").getString("lng"));
                         //JSONArray types = iterjsonObject.getJSONArray("types");

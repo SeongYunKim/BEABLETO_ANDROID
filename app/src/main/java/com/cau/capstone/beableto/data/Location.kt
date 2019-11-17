@@ -7,7 +7,7 @@ data class Location (
     val longitude: Float,
     val address: String,
     val name: String,
-    val rate: Float?,
+    var rate: Float?,
     val place_id: String,
     val types: List<String>?
 ):Serializable
