@@ -25,6 +25,7 @@ class AutoSuggestActivity : AppCompatActivity() {
 
         auto_suggest_adapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_list_item_1)
         autocomplete_listview.adapter = auto_suggest_adapter
+        val filter = auto_suggest_adapter!!.filter
         recent_search_adapter =
             RecentSearchAdapter(SharedPreferenceController.getRecentSearchWord(this))
         recyclerview_recent_search.layoutManager = LinearLayoutManager(this)
@@ -41,8 +42,9 @@ class AutoSuggestActivity : AppCompatActivity() {
                 override fun afterTextChanged(s: Editable?) {
                     val filterText = s.toString()
                     if (filterText.length > 0) {
-                        autocomplete_listview.setFilterText(filterText)
                         auto_suggest_adapter!!.notifyDataSetChanged()
+                        //autocomplete_listview.setFilterText(filterText)
+                        filter.filter(filterText)
                     } else {
                         autocomplete_listview.clearTextFilter()
                     }
