@@ -15,6 +15,7 @@ import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.PlaceAPI
 import com.cau.capstone.beableto.data.Location
 import com.cau.capstone.beableto.fragment.LocationSelectFragment
+import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -44,7 +45,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
         val d = resources.displayMetrics.density
         val margin = (dp_value + d).toInt()
         viewpager_select_location.setPadding(margin, 0, margin, 0)
-        viewpager_select_location.pageMargin = margin/2
+        viewpager_select_location.pageMargin = margin / 2
 
         recyclerview_select_location.setOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -81,14 +82,15 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
         })
 
-        viewpager_select_location.addOnPageChangeListener(object: ViewPager.OnPageChangeListener {
+        viewpager_select_location.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {}
 
             override fun onPageScrolled(
                 position: Int,
                 positionOffset: Float,
                 positionOffsetPixels: Int
-            ) {}
+            ) {
+            }
 
             override fun onPageSelected(position: Int) {
                 val selected_location = LatLng(
@@ -111,7 +113,15 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
-            list = placeAPI.search_place_list(intent.getStringExtra("input"))
+            val input = intent.getStringExtra("input")
+            if (intent.hasExtra("position")) {
+                list = SharedPreferenceController.getRecentSearchLocation(
+                    this,
+                    intent.getIntExtra("position", 0)
+                )
+            } else {
+                list = placeAPI.search_place_list(input)
+            }
             while (list.isEmpty()) {
                 Handler().postDelayed({}, 100)
             }
@@ -131,7 +141,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
             viewpager_select_location.adapter = location_select_pager_adapter
-            for(i in list){
+            for (i in list) {
                 val location_select_fragment = LocationSelectFragment()
                 val bundle = Bundle()
                 bundle.putSerializable("location_info", i)
@@ -140,6 +150,8 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 location_select_pager_adapter.addItem(location_select_fragment)
             }
             location_select_pager_adapter.notifyDataSetChanged()
+
+            SharedPreferenceController.setRecentSearchList(this, input!!, list)
         }
     }
 }
