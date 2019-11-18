@@ -4,12 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.R
-import com.cau.capstone.beableto.api.PlaceAPI
+import com.cau.capstone.beableto.repository.SharedPreferenceController
 import kotlinx.android.synthetic.main.activity_src_dest_search.*
 
 class AutoSuggestActivity : AppCompatActivity() {
@@ -26,6 +24,7 @@ class AutoSuggestActivity : AppCompatActivity() {
                     val filterText = s.toString()
                     if (filterText.length > 0) {
                         autocomplete_listview.setFilterText(filterText)
+                        adapter.notifyDataSetChanged()
                     } else {
                         autocomplete_listview.clearTextFilter()
                     }
@@ -45,7 +44,9 @@ class AutoSuggestActivity : AppCompatActivity() {
 
         autocomplete_listview.setOnItemClickListener { parent, view, position, id ->
             val intent = Intent(this, LocationSelectActivity::class.java)
-            intent.putExtra("input", parent.getItemAtPosition(position) as String)
+            val input = parent.getItemAtPosition(position) as String
+            intent.putExtra("input", input)
+            SharedPreferenceController.setRecentSearchList(this, input)
             startActivity(intent)
             finish()
         }
