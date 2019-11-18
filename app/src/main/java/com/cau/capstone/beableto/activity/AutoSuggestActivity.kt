@@ -4,15 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.cau.capstone.beableto.adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.adapter.PlaceAutoSuggestAdapter
+import com.cau.capstone.beableto.repository.SharedPreferenceController
 import kotlinx.android.synthetic.main.activity_src_dest_search.*
 
 class AutoSuggestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_src_dest_search)
+        Log.d("Recent_Before", SharedPreferenceController.getRecentSearchList(this).toString())
         //autocomplete.setAdapter(PlaceAutoSuggestAdapter(this, android.R.layout.simple_list_item_1))
         val adapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_list_item_1)
         autocomplete_listview.adapter = adapter
@@ -42,7 +45,10 @@ class AutoSuggestActivity : AppCompatActivity() {
 
         autocomplete_listview.setOnItemClickListener { parent, view, position, id ->
             val intent = Intent(this, LocationSelectActivity::class.java)
-            intent.putExtra("input", parent.getItemAtPosition(position) as String)
+            val input = parent.getItemAtPosition(position) as String
+            intent.putExtra("input", input)
+            SharedPreferenceController.setRecentSearchList(this, input)
+            Log.d("Recent_After", SharedPreferenceController.getRecentSearchList(this).toString())
             startActivity(intent)
             finish()
         }
