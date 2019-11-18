@@ -1,4 +1,4 @@
-package com.cau.capstone.beableto.Adapter
+package com.cau.capstone.beableto.adapter
 
 import android.content.Context
 import android.widget.ArrayAdapter

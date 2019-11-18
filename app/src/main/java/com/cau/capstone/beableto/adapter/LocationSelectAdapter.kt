@@ -1,4 +1,4 @@
-package com.cau.capstone.beableto.Adapter
+package com.cau.capstone.beableto.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -12,7 +12,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
+import com.cau.capstone.beableto.adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore

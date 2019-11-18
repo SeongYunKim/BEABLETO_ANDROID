@@ -1,15 +1,12 @@
-package com.cau.capstone.beableto.Adapter
+package com.cau.capstone.beableto.adapter
 
 import android.app.Activity
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.view.Window
 import android.widget.TextView
 import com.cau.capstone.beableto.R
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
-import kotlinx.android.synthetic.*
 
 class CustomInfoWindowAdapter(val context: Context) : GoogleMap.InfoWindowAdapter {
 

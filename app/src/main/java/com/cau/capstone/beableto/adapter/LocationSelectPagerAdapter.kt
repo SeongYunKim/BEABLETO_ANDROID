@@ -1,4 +1,4 @@
-package com.cau.capstone.beableto.Adapter
+package com.cau.capstone.beableto.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

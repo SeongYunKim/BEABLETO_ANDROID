@@ -16,7 +16,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
+import com.cau.capstone.beableto.adapter.CustomInfoWindowAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore

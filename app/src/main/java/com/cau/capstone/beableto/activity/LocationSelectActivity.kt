@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
-import com.cau.capstone.beableto.Adapter.LocationSelectAdapter
-import com.cau.capstone.beableto.Adapter.LocationSelectPagerAdapter
+import com.cau.capstone.beableto.adapter.LocationSelectAdapter
+import com.cau.capstone.beableto.adapter.LocationSelectPagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.PlaceAPI
 import com.cau.capstone.beableto.data.Location

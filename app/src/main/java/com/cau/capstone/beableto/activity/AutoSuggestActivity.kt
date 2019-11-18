@@ -4,12 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.cau.capstone.beableto.Adapter.PlaceAutoSuggestAdapter
+import com.cau.capstone.beableto.adapter.PlaceAutoSuggestAdapter
 import com.cau.capstone.beableto.R
-import com.cau.capstone.beableto.api.PlaceAPI
 import kotlinx.android.synthetic.main.activity_src_dest_search.*
 
 class AutoSuggestActivity : AppCompatActivity() {
