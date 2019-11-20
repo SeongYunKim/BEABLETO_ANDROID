@@ -1,5 +1,7 @@
 package com.cau.capstone.beableto.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -32,6 +34,8 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
     private val placeAPI = PlaceAPI()
     var list: ArrayList<Location> = ArrayList()
     var item_touch: Boolean = true
+    private val SELECT_LOCATION_REQUEST = 9876
+    private var location_select_pager_adapter: LocationSelectPagerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +138,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
                 finish()
             }
-            val adapter = LocationSelectAdapter(list)
+            val adapter = LocationSelectAdapter(list, this)
             recyclerview_select_location.layoutManager = LinearLayoutManager(this)
             recyclerview_select_location.adapter = adapter
             recyclerview_select_location.addItemDecoration(
@@ -148,7 +152,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
             mMap.addMarker(MarkerOptions().position(first_location).title(list[0].name))
 
-            val location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
+            location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
             viewpager_select_location.adapter = location_select_pager_adapter
             for (i in list) {
                 val location_select_fragment = LocationSelectFragment()
@@ -156,11 +160,23 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 bundle.putSerializable("location_info", i)
                 //bundle.putString("name", i.name)
                 location_select_fragment.arguments = bundle
-                location_select_pager_adapter.addItem(location_select_fragment)
+                location_select_pager_adapter!!.addItem(location_select_fragment)
             }
-            location_select_pager_adapter.notifyDataSetChanged()
+            location_select_pager_adapter!!.notifyDataSetChanged()
 
             SharedPreferenceController.setRecentSearchList(this, input!!, list)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode ==  SELECT_LOCATION_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("slope")) {
+                list[data.getIntExtra("position", 0)].slope = data.getIntExtra("slope", 0)
+                location_select_pager_adapter!!.notifyDataSetChanged()
+            }
+        } else {
+            //위치 등록하다가 말았을 경우
         }
     }
 }

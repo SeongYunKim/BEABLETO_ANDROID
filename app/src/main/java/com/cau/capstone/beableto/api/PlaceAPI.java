@@ -118,11 +118,11 @@ public class PlaceAPI {
                         //for(int j = 0; j < types.length(); j++){
                         //    typesList.add(types.getJSONObject(j));
                         //}
-                        Location location = new Location(latitude, longitude, address, name, rate, place_id, null);
+                        Location location = new Location(latitude, longitude, address, name, rate, place_id, null, null);
                         locationList.add(location);
                     }
                     if(status.equals("ZERO_RESULTS")){
-                        locationList.add(new Location(1.0F, 0.0F, "", "", 0.0F, "", null));
+                        locationList.add(new Location(1.0F, 0.0F, "", "", 0.0F, "", null, null));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

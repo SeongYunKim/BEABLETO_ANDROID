@@ -48,6 +48,14 @@ class RegisterLocationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_location)
+        if(intent.hasExtra("fix_latitude")){
+            layout_register_location.isSelected = true
+            modify_latitude = intent.getFloatExtra("fix_latitude", 0.0F)
+            modify_longitude = intent.getFloatExtra("fix_longitude", 0.0F)
+            et_location_name.setText(intent.getStringExtra("fix_name"))
+            et_address.setText(intent.getStringExtra("fix_address"))
+        }
+
         tv_slope_none.isSelected = true
         view_slope_none.isSelected = true
         layout_slope_none.isSelected = true
@@ -275,6 +283,8 @@ class RegisterLocationActivity : AppCompatActivity() {
                         val back_intent = Intent()
                         back_intent.putExtra("latitude", modify_latitude!!)
                         back_intent.putExtra("longitude", modify_longitude!!)
+                        back_intent.putExtra("slope", slope)
+                        back_intent.putExtra("position", intent.getIntExtra("position", 0))
                         setResult(Activity.RESULT_OK, back_intent)
                         finish()
                         //Toast.makeText(this@RegisterLocationActivity, "성공!!", Toast.LENGTH_SHORT).show()

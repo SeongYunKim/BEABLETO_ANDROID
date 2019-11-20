@@ -9,5 +9,6 @@ data class Location (
     val name: String,
     var rate: Float?,
     val place_id: String,
-    val types: List<String>?
+    val types: List<String>?,
+    var slope: Int?
 ):Serializable
