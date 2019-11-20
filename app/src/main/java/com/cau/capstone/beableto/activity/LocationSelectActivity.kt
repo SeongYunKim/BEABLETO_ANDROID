@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -119,11 +120,19 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                     this,
                     intent.getIntExtra("position", 0)
                 )
+                if (list.isEmpty()) {
+                    Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             } else {
                 list = placeAPI.search_place_list(input)
             }
             while (list.isEmpty()) {
                 Handler().postDelayed({}, 100)
+            }
+            if (list[0].latitude == 1.0F) {
+                Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                finish()
             }
             val adapter = LocationSelectAdapter(list)
             recyclerview_select_location.layoutManager = LinearLayoutManager(this)

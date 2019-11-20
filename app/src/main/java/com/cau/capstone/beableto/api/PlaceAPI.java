@@ -1,7 +1,5 @@
 package com.cau.capstone.beableto.api;
 
-import android.util.Log;
-
 import com.cau.capstone.beableto.data.Location;
 
 import org.json.JSONArray;
@@ -103,6 +101,7 @@ public class PlaceAPI {
                 try {
                     JSONObject jsonObject = new JSONObject(jsonResult.toString());
                     JSONArray results = jsonObject.getJSONArray("results");
+                    String status = jsonObject.getString("status");
                     for (int i = 0; i < results.length(); i++) {
                         JSONObject iterjsonObject = results.getJSONObject(i);
                         String address = null, name = null, place_id = null;
@@ -122,7 +121,9 @@ public class PlaceAPI {
                         Location location = new Location(latitude, longitude, address, name, rate, place_id, null);
                         locationList.add(location);
                     }
-                    Log.d("Test", locationList.toString());
+                    if(status.equals("ZERO_RESULTS")){
+                        locationList.add(new Location(1.0F, 0.0F, "", "", 0.0F, "", null));
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
