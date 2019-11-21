@@ -5,8 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -17,10 +15,11 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.cau.capstone.beableto.Adapter.CustomInfoWindowAdapter
+import com.cau.capstone.beableto.Adapter.CustomClusterAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
+import com.cau.capstone.beableto.data.ClusteringLocation
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseFragmentOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
@@ -31,10 +30,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.clustering.ClusterManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -54,7 +51,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var show_route: Boolean = true
     private lateinit var fab_open: Animation
     private lateinit var fab_close: Animation
-    private var isFabOpen: Boolean = false;
+    private var isFabOpen: Boolean = false
+    private lateinit var mClusterManger: ClusterManager<ClusteringLocation>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,6 +142,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         var longitude: Float?
         if (requestCode == GET_REGISTER_LOCATION && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
+                mMap.clear()
+                mClusterManger.clearItems()
+                getAllMarkerInfo()
                 latitude = data.getFloatExtra("latitude", 0.0F)
                 longitude = data.getFloatExtra("longitude", 0.0F)
                 Log.d("MainData", latitude.toString() + " " + longitude.toString())
@@ -166,7 +167,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             gentle_marker = setting.gentle
             show_route = setting.route
             mMap.clear()
-            getMarkerInfo(getMapBound())
+            mClusterManger.clearItems()
+            getAllMarkerInfo()
         } else {
             //설정 하다가 말았을 경우
         }
@@ -223,25 +225,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 return
             }
             mMap.isMyLocationEnabled = true
+            mClusterManger = ClusterManager(this, mMap)
             mapLoadedCallBack()
         }
     }
 
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
-            getMarkerInfo(getMapBound())
-            if(show_route){
+            mClusterManger.renderer = CustomClusterAdapter(this, mMap, mClusterManger)
+            //mMap.setOnCameraIdleListener(mClusterManger)
+            getAllMarkerInfo()
+            if (show_route && mMap.cameraPosition.zoom > 15.0F) {
                 getFragment(getMapBound())
             }
         }
 
-        mMap.setOnCameraIdleListener {
-            mMap.clear()
-            getMarkerInfo(getMapBound())
-            if(show_route){
-                getFragment(getMapBound())
+        mMap.setOnCameraChangeListener(object : GoogleMap.OnCameraChangeListener {
+            override fun onCameraChange(p0: CameraPosition?) {
+                mClusterManger.onCameraIdle()
+                if (show_route && mMap.cameraPosition.zoom > 15.0F) {
+                    //mMap.clear()
+                    //mClusterManger.onCameraIdle()
+                    getFragment(getMapBound())
+                }
             }
-        }
+        })
 
         et_main_place_search.setOnClickListener {
             val intent = Intent(this, AutoSuggestActivity::class.java)
@@ -283,28 +291,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun geoLocate() {
-        val searchString = et_main_place_search.text.toString()
-        val geocoder = Geocoder(this)
-        var list: List<Address> = ArrayList()
-        try {
-            list = geocoder.getFromLocationName(searchString, 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (list.isNotEmpty()) {
-            val address = list[0]
-            mMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(
-                        address.latitude,
-                        address.longitude
-                    ), 18.0F
-                )
-            )
-        }
-    }
-
     private fun getMapBound(): Pair<LatLng, LatLng> {
         val bounds = mMap.projection.visibleRegion.latLngBounds
         val northEast = bounds.northeast
@@ -312,6 +298,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         return Pair(northEast, southWest)
     }
 
+    private fun getAllMarkerInfo() {
+        NetworkCore.getNetworkCore<BEABLETOAPI>()
+            .requestGetAllMarkers(
+                SharedPreferenceController.getAuthorization(this@MainActivity)
+            )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                Log.d("GetAll_Success", response.markers.toString())
+                drawAllMarker(response)
+            }, {
+                Log.d("GetAll_Error", Log.getStackTraceString(it))
+            })
+    }
+
+    /*
     private fun getMarkerInfo(pair: Pair<LatLng, LatLng>) {
         val requestMarkerOnMap = RequestMarkerOnMap(
             pair.first.latitude.toString(),
@@ -328,11 +330,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ response ->
                 Log.d("Marker_Success", response.markers.toString())
-                drawMarker(response)
+                //drawMarker(response)
             }, {
                 Log.d("Marker_Error", Log.getStackTraceString(it))
             })
     }
+     */
 
     private fun getFragment(pair: Pair<LatLng, LatLng>) {
         val requestMarkerOnMap = RequestMarkerOnMap(
@@ -356,6 +359,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             })
     }
 
+    /*
     private fun drawMarker(response: ResponseMarkerOnMap) {
         mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
         var slope: Int
@@ -395,6 +399,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.addMarker(markerOptions)
             }
         }
+    }
+     */
+
+    private fun drawAllMarker(response: ResponseMarkerOnMap) {
+        for (r in response.markers) {
+            if ((r.slope == 0 && gentle_marker) || (r.slope == 1 && sharp_marker) || (r.slope == 2 && stair_marker))
+                mClusterManger.addItem(
+                    ClusteringLocation(
+                        r.x_axis.toDouble(),
+                        r.y_axis.toDouble(),
+                        r.slope,
+                        "안녕하세요"
+                    )
+                )
+        }
+        mClusterManger.onCameraIdle()
     }
 
     private fun drawFragment(response: ResponseFragmentOnMap) {
