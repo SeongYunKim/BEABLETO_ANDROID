@@ -6,6 +6,7 @@ import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
+import java.lang.StringBuilder
 
 interface BEABLETOAPI {
     @POST("/accounts/signup/")
@@ -32,6 +33,10 @@ interface BEABLETOAPI {
     @POST("/information/getmarker/")
     fun requestMarkerOnMap(@Header("Authorization") authorization: String?,
                            @Body body: RequestMarkerOnMap) : Single<ResponseMarkerOnMap>
+
+    @POST("/information/getfragment/")
+    fun requestFragmentOnMap(@Header("Authorization") authorization: String?,
+                             @Body body: RequestMarkerOnMap) : Single<ResponseFragmentOnMap>
 
     @POST("/information/road/")
     fun requestRegisterRoute(@Header("Authorization") authorization: String?,

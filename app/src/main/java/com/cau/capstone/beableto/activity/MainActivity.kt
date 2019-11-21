@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -21,6 +22,7 @@ import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestMarkerOnMap
+import com.cau.capstone.beableto.data.ResponseFragmentOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -32,6 +34,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var stair_marker: Boolean = true
     private var sharp_marker: Boolean = true
     private var gentle_marker: Boolean = true
+    private var show_route: Boolean = true
     private lateinit var fab_open: Animation
     private lateinit var fab_close: Animation
     private var isFabOpen: Boolean = false;
@@ -67,6 +71,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         stair_marker = setting.stair
         sharp_marker = setting.sharp
         gentle_marker = setting.gentle
+        show_route = setting.route
 
         //val placeAutoSuggestAdapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_dropdown_item_1line)
         //main_autocomplete.setAdapter(placeAutoSuggestAdapter)
@@ -159,6 +164,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             stair_marker = setting.stair
             sharp_marker = setting.sharp
             gentle_marker = setting.gentle
+            show_route = setting.route
             mMap.clear()
             getMarkerInfo(getMapBound())
         } else {
@@ -224,14 +230,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
             getMarkerInfo(getMapBound())
+            if(show_route){
+                getFragment(getMapBound())
+            }
         }
 
         mMap.setOnCameraIdleListener {
-            //mMap.clear()
+            mMap.clear()
             getMarkerInfo(getMapBound())
+            if(show_route){
+                getFragment(getMapBound())
+            }
         }
 
-        et_main_place_search.setOnClickListener{
+        et_main_place_search.setOnClickListener {
             val intent = Intent(this, AutoSuggestActivity::class.java)
             startActivity(intent)
         }
@@ -301,7 +313,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getMarkerInfo(pair: Pair<LatLng, LatLng>) {
-        var requestMarkerOnMap = RequestMarkerOnMap(
+        val requestMarkerOnMap = RequestMarkerOnMap(
             pair.first.latitude.toString(),
             pair.first.longitude.toString(),
             pair.second.latitude.toString(),
@@ -317,6 +329,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .subscribe({ response ->
                 Log.d("Marker_Success", response.markers.toString())
                 drawMarker(response)
+            }, {
+                Log.d("Marker_Error", Log.getStackTraceString(it))
+            })
+    }
+
+    private fun getFragment(pair: Pair<LatLng, LatLng>) {
+        val requestMarkerOnMap = RequestMarkerOnMap(
+            pair.first.latitude.toString(),
+            pair.first.longitude.toString(),
+            pair.second.latitude.toString(),
+            pair.second.longitude.toString()
+        )
+
+        NetworkCore.getNetworkCore<BEABLETOAPI>()
+            .requestFragmentOnMap(
+                SharedPreferenceController.getAuthorization(this@MainActivity), requestMarkerOnMap
+            )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                Log.d("Marker_Success", response.fragments.toString())
+                drawFragment(response)
             }, {
                 Log.d("Marker_Error", Log.getStackTraceString(it))
             })
@@ -359,6 +393,47 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             markerOptions.snippet(snippet)
             if ((slope == 0 && gentle_marker) || (slope == 1 && sharp_marker) || (slope == 2 && stair_marker)) {
                 mMap.addMarker(markerOptions)
+            }
+        }
+    }
+
+    private fun drawFragment(response: ResponseFragmentOnMap) {
+        var latitude_list: MutableList<Float> = ArrayList()
+        var longitude_list: MutableList<Float> = ArrayList()
+        var slope_list: MutableList<Int> = ArrayList()
+        var current_latlng: LatLng
+        var before_latlng: LatLng
+        for (fragment in response.fragments) {
+            latitude_list.add(fragment.start_x)
+            longitude_list.add(fragment.start_y)
+            latitude_list.add(fragment.end_x)
+            longitude_list.add(fragment.end_y)
+            slope_list.add(fragment.slope)
+        }
+        for (i in latitude_list.indices) {
+            if (i % 2 == 0) {
+                before_latlng = LatLng(latitude_list[i].toDouble(), longitude_list[i].toDouble())
+                current_latlng =
+                    LatLng(latitude_list[i + 1].toDouble(), longitude_list[i + 1].toDouble())
+                if (slope_list[i / 2] == 0) {
+                    mMap.addPolyline(
+                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                            Color.MAGENTA
+                        )
+                    )
+                } else if (slope_list[i / 2] == 1) {
+                    mMap.addPolyline(
+                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                            Color.RED
+                        )
+                    )
+                } else if (slope_list[i / 2] == 2) {
+                    mMap.addPolyline(
+                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                            Color.BLACK
+                        )
+                    )
+                }
             }
         }
     }
