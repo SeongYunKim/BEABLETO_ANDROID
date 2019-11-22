@@ -2,9 +2,9 @@ package com.cau.capstone.beableto.activity
 
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager.widget.ViewPager
 import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
@@ -17,8 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_show_route.*
@@ -41,8 +40,10 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var latitude: Float? = null
     private var longitude: Float? = null
-    private var cur_latitude: Float? = null
-    private var cur_longitude: Float? = null
+    private var start_latitude: Float? = null
+    private var start_longitude: Float? = null
+    private var end_latitude: Float? = null
+    private var end_longitude: Float? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +87,23 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         val margin = (dp_value + d).toInt()
         viewpager_show_route.setPadding(margin, 0, margin * 5, 0)
         viewpager_show_route.pageMargin = margin / 2
+
+        viewpager_show_route.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {}
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                mMap.clear()
+                drawPolyLine(position)
+                adjustCamera()
+            }
+        })
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -98,12 +116,17 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
+            start_latitude = SharedPreferenceController.getCurrentLocation(this).latitude.toFloat()
+            start_longitude =
+                SharedPreferenceController.getCurrentLocation(this).longitude.toFloat()
+            end_latitude = latitude
+            end_longitude = longitude
             val requestRoute =
                 RequestRoute(
-                    SharedPreferenceController.getCurrentLocation(this).latitude.toFloat(),
-                    SharedPreferenceController.getCurrentLocation(this).longitude.toFloat(),
-                    latitude!!,
-                    longitude!!
+                    start_latitude!!,
+                    start_longitude!!,
+                    end_latitude!!,
+                    end_longitude!!
                 )
             NetworkCore.getNetworkCore<BEABLETOAPI>()
                 .requestAdmin(
@@ -116,7 +139,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     for (ps in response.paths.indices) {
                         var time = 0
                         for (p in response.paths[ps].path) {
-                            if(p.time != null)
+                            if (p.time != null)
                                 time += p.time.value
                             if (p.type == "walk") {
                                 for (ws in p.walk_seq) {
@@ -146,34 +169,23 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     for (i in time_list.indices) {
                         val route_fragment = RouteFragment()
                         val bundle = Bundle()
-                        bundle.putSerializable("route_info", Route(time_list[i], bus_poly_list[i].size > 1, train_poly_list[i].size > 1))
+                        bundle.putSerializable(
+                            "route_info",
+                            Route(
+                                time_list[i],
+                                bus_poly_list[i].size > 1,
+                                train_poly_list[i].size > 1
+                            )
+                        )
                         route_fragment.arguments = bundle
                         route_pager_adapter!!.addItem(route_fragment)
                     }
                     route_pager_adapter!!.notifyDataSetChanged()
                     drawPolyLine(0)
+                    adjustCamera()
                 }, {
                     Log.d("SSibal_Error", Log.getStackTraceString(it))
                 })
-            /*
-            route_pager_adapter = RoutePagerAdapter(supportFragmentManager)
-            viewpager_show_route.adapter = route_pager_adapter
-            Log.d("time_list", time_list.toString())
-            for (time in time_list) {
-                val route_fragment = RouteFragment()
-                val bundle = Bundle()
-                bundle.putInt("route_info", time)
-                route_fragment.arguments = bundle
-                route_pager_adapter!!.addItem(route_fragment)
-            }
-            route_pager_adapter!!.notifyDataSetChanged()
-            */
-
-            while (slope_list[0].size > 1) {
-                Handler().postDelayed({}, 100)
-            }
-            mMap.clear()
-            drawPolyLine(0)
         }
     }
 
@@ -250,5 +262,35 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 before_latlng = current_latlng
             }
         }
+    }
+
+    private fun adjustCamera() {
+        val start_marker = mMap.addMarker(
+            MarkerOptions().position(
+                LatLng(
+                    start_latitude!!.toDouble(),
+                    start_longitude!!.toDouble()
+                )
+            ).title("시작점")
+        )
+        val end_marker = mMap.addMarker(
+            MarkerOptions().position(
+                LatLng(
+                    end_latitude!!.toDouble(),
+                    end_longitude!!.toDouble()
+                )
+            ).title("도착점")
+        )
+        val bound_markers_list: MutableList<Marker> = ArrayList()
+        val padding = 100
+        bound_markers_list.add(start_marker)
+        bound_markers_list.add(end_marker)
+        val builder = LatLngBounds.Builder()
+        for (m in bound_markers_list) {
+            builder.include(m.position)
+        }
+        val bounds = builder.build()
+        val cu = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+        mMap.animateCamera(cu)
     }
 }
