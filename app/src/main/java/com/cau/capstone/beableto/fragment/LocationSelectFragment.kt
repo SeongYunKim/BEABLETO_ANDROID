@@ -1,6 +1,5 @@
 package com.cau.capstone.beableto.fragment
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,9 +11,8 @@ import com.cau.capstone.beableto.activity.ShowRouteActivity
 import com.cau.capstone.beableto.data.Location
 import kotlinx.android.synthetic.main.viewpage_location.view.*
 
-class LocationSelectFragment(context: Context) : Fragment() {
+class LocationSelectFragment : Fragment() {
     private var location_info: Location? = null
-    private val mContext: Context = context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +40,9 @@ class LocationSelectFragment(context: Context) : Fragment() {
             view.vp_location_slope.text = "계단"
         view.vp_location_type.text = "카페, 커피"
 
+
         view.btn_end.setOnClickListener {
-            val intent = Intent(mContext, ShowRouteActivity::class.java)
+            val intent = Intent(activity, ShowRouteActivity::class.java)
             intent.putExtra("latitude", location_info!!.latitude)
             intent.putExtra("longitude", location_info!!.longitude)
             intent.putExtra("name", location_info!!.name)

@@ -1,23 +1,18 @@
 package com.cau.capstone.beableto.activity
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Location
-import android.location.LocationListener
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestRoute
+import com.cau.capstone.beableto.data.Route
+import com.cau.capstone.beableto.fragment.RouteFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -31,24 +26,23 @@ import kotlinx.android.synthetic.main.activity_show_route.*
 class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private var lastLocation: Location? = null
-    private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+    private var route_pager_adapter: RoutePagerAdapter? = null
 
+    private var time_list: MutableList<Int> = ArrayList()
     private var latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var longitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var bus_latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var bus_longitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var bus_poly_list: MutableList<MutableList<String>> = ArrayList()
     private var train_latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var train_longitude_list: MutableList<MutableList<Float>> = ArrayList()
+    private var train_poly_list: MutableList<MutableList<String>> = ArrayList()
     private var slope_list: MutableList<MutableList<Int>> = ArrayList()
 
     private var latitude: Float? = null
     private var longitude: Float? = null
     private var cur_latitude: Float? = null
     private var cur_longitude: Float? = null
-
-    private val PERMISSION_CODE = 3456
-    private var mLocationPermissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,19 +60,32 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
             slope_list.add(mutableListOf(0))
             bus_latitude_list.add(mutableListOf(0.0F))
             bus_longitude_list.add(mutableListOf(0.0F))
+            bus_poly_list.add(mutableListOf(""))
             train_latitude_list.add(mutableListOf(0.0F))
             train_longitude_list.add(mutableListOf(0.0F))
+            train_poly_list.add(mutableListOf(""))
         }
 
         if (type == "start") {
 
         } else if (type == "end") {
+            et_search_start.setText("현위치")
             et_search_end.setText(location_name)
         }
 
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map_show_route) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        route_pager_adapter = RoutePagerAdapter(supportFragmentManager)
+        viewpager_show_route.adapter = route_pager_adapter
+
+        viewpager_show_route.clipToPadding = false
+        val dp_value = 60
+        val d = resources.displayMetrics.density
+        val margin = (dp_value + d).toInt()
+        viewpager_show_route.setPadding(margin, 0, margin * 5, 0)
+        viewpager_show_route.pageMargin = margin / 2
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -86,104 +93,88 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         val INIT = LatLng(37.50352, 126.95706)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
         mMap.isMyLocationEnabled = true
-        //getDeviceLocation()
         mapLoadedCallBack()
     }
 
-    private fun getDeviceLocation() {
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        try {
-            mFusedLocationProviderClient.lastLocation.addOnSuccessListener(this) { location ->
-                if (location != null) {
-                    lastLocation = location
-                    val currentLatLng = LatLng(location.latitude, location.longitude)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18.0F))
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     private fun mapLoadedCallBack() {
-        /*
-        if (mLocationPermissionGranted) {
-            getDeviceLocation()
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
-            mMap.isMyLocationEnabled = true
-        }
-        try {
-            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val locationListener = MyLocationListener()
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                10000000,
-                1000000.0F,
-                locationListener
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        */
-        val requestRoute =
-            RequestRoute(
-                SharedPreferenceController.getCurrentLocation(this).latitude.toFloat(),
-                SharedPreferenceController.getCurrentLocation(this).longitude.toFloat(),
-                //current_location.latitude.toFloat(),
-                //current_location.longitude.toFloat(),
-                latitude!!,
-                longitude!!
-            )
-        NetworkCore.getNetworkCore<BEABLETOAPI>()
-            .requestAdmin(
-                SharedPreferenceController.getAuthorization(this), requestRoute
-            )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ response ->
-                Log.d("SSibal", response.toString())
-                for (ps in response.paths.indices) {
-                    for (p in response.paths[ps].path) {
-                        if (p.type == "walk") {
-                            for (ws in p.walk_seq) {
-                                latitude_list[ps].add(ws.start_x!!)
-                                longitude_list[ps].add(ws.start_y!!)
-                                latitude_list[ps].add(ws.end_x!!)
-                                longitude_list[ps].add(ws.end_y!!)
-                                slope_list[ps].add(ws.slope)
+        mMap.setOnMapLoadedCallback {
+            val requestRoute =
+                RequestRoute(
+                    SharedPreferenceController.getCurrentLocation(this).latitude.toFloat(),
+                    SharedPreferenceController.getCurrentLocation(this).longitude.toFloat(),
+                    latitude!!,
+                    longitude!!
+                )
+            NetworkCore.getNetworkCore<BEABLETOAPI>()
+                .requestAdmin(
+                    SharedPreferenceController.getAuthorization(this), requestRoute
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response ->
+                    Log.d("SSibal", response.toString())
+                    for (ps in response.paths.indices) {
+                        var time = 0
+                        for (p in response.paths[ps].path) {
+                            if(p.time != null)
+                                time += p.time.value
+                            if (p.type == "walk") {
+                                for (ws in p.walk_seq) {
+                                    latitude_list[ps].add(ws.start_x!!)
+                                    longitude_list[ps].add(ws.start_y!!)
+                                    latitude_list[ps].add(ws.end_x!!)
+                                    longitude_list[ps].add(ws.end_y!!)
+                                    slope_list[ps].add(ws.slope)
+                                }
+                            } else if (p.type == "bus") {
+                                bus_latitude_list[ps].add(p.bus_start_x!!)
+                                bus_longitude_list[ps].add(p.bus_start_y!!)
+                                bus_latitude_list[ps].add(p.bus_end_x!!)
+                                bus_longitude_list[ps].add(p.bus_end_y!!)
+                                bus_poly_list[ps].add(p.bus_poly!!)
+                            } else if (p.type == "train") {
+                                train_latitude_list[ps].add(p.train_start_x!!)
+                                train_longitude_list[ps].add(p.train_start_y!!)
+                                train_latitude_list[ps].add(p.train_end_x!!)
+                                train_longitude_list[ps].add(p.train_end_y!!)
+                                train_poly_list[ps].add(p.train_poly!!)
                             }
-                        } else if (p.type == "bus") {
-                            bus_latitude_list[ps].add(p.bus_start_x!!)
-                            bus_longitude_list[ps].add(p.bus_start_y!!)
-                            bus_latitude_list[ps].add(p.bus_end_x!!)
-                            bus_longitude_list[ps].add(p.bus_end_y!!)
-                        } else if (p.type == "train") {
-                            train_latitude_list[ps].add(p.train_start_x!!)
-                            train_longitude_list[ps].add(p.train_start_y!!)
-                            train_latitude_list[ps].add(p.train_end_x!!)
-                            train_longitude_list[ps].add(p.train_end_y!!)
                         }
+                        time_list.add(time)
                     }
-                }
-                drawPolyLine(0)
-            }, {
-                Log.d("SSibal_Error", Log.getStackTraceString(it))
-            })
-        Log.d("SSibal", latitude_list[3].toString())
-        while (slope_list[0].size > 1) {
-            Handler().postDelayed({}, 100)
+                    Log.d("time_list", time_list.toString())
+                    for (i in time_list.indices) {
+                        val route_fragment = RouteFragment()
+                        val bundle = Bundle()
+                        bundle.putSerializable("route_info", Route(time_list[i], bus_poly_list[i].size > 1, train_poly_list[i].size > 1))
+                        route_fragment.arguments = bundle
+                        route_pager_adapter!!.addItem(route_fragment)
+                    }
+                    route_pager_adapter!!.notifyDataSetChanged()
+                    drawPolyLine(0)
+                }, {
+                    Log.d("SSibal_Error", Log.getStackTraceString(it))
+                })
+            /*
+            route_pager_adapter = RoutePagerAdapter(supportFragmentManager)
+            viewpager_show_route.adapter = route_pager_adapter
+            Log.d("time_list", time_list.toString())
+            for (time in time_list) {
+                val route_fragment = RouteFragment()
+                val bundle = Bundle()
+                bundle.putInt("route_info", time)
+                route_fragment.arguments = bundle
+                route_pager_adapter!!.addItem(route_fragment)
+            }
+            route_pager_adapter!!.notifyDataSetChanged()
+            */
+
+            while (slope_list[0].size > 1) {
+                Handler().postDelayed({}, 100)
+            }
+            mMap.clear()
+            drawPolyLine(0)
         }
-        mMap.clear()
-        drawPolyLine(0)
     }
 
     private fun drawPolyLine(num: Int) {
@@ -258,51 +249,6 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 before_latlng = current_latlng
             }
-        }
-    }
-
-    inner class MyLocationListener : LocationListener {
-        override fun onLocationChanged(location: Location?) {
-            cur_latitude = location!!.latitude.toFloat()
-            cur_longitude = location.longitude.toFloat()
-        }
-
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-        override fun onProviderDisabled(provider: String?) {}
-        override fun onProviderEnabled(provider: String?) {}
-    }
-
-    private fun getLocationPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this.applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ContextCompat.checkSelfPermission(
-                    this.applicationContext,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                mLocationPermissionGranted = true
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    PERMISSION_CODE
-                )
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                PERMISSION_CODE
-            )
         }
     }
 }
