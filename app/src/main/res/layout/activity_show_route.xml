@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/search_start"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/white_border_with_line">
+
+                <ImageView
+                    android:id="@+id/ic_magnify4"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_magnify" />
+
+                <EditText
+                    android:id="@+id/et_search_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="7dp"
+                    android:layout_toRightOf="@id/ic_magnify4"
+                    android:background="@null"
+                    android:focusable="false"
+                    android:hint="출발지 검색"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/search_end"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="70dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/white_border_with_line">
+
+                <ImageView
+                    android:id="@+id/ic_magnify5"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ic_magnify" />
+
+                <EditText
+                    android:id="@+id/et_search_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="7dp"
+                    android:layout_toRightOf="@id/ic_magnify5"
+                    android:background="@null"
+                    android:focusable="false"
+                    android:hint="도착지 검색"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="17sp" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <fragment
+                android:id="@+id/map_show_route"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/viewpager_show_route"
+                android:layout_width="wrap_content"
+                android:layout_height="170dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</layout>

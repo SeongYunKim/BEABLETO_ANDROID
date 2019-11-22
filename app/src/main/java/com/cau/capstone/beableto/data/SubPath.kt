@@ -7,6 +7,7 @@ data class SubPath(
     val walk_end_x: Float?,
     val walk_end_y: Float?,
     val walk_seq: List<WalkSequence>,
+    val walk_sub: String?,
     val bus_start_x: Float?,
     val bus_start_y: Float?,
     val bus_end_x: Float?,

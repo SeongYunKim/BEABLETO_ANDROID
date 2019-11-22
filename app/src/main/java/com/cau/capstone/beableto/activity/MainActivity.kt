@@ -253,6 +253,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         et_main_place_search.setOnClickListener {
             val intent = Intent(this, AutoSuggestActivity::class.java)
+            SharedPreferenceController.setCurrentLocation(this, lastLocation.latitude.toFloat(), lastLocation.longitude.toFloat())
             startActivity(intent)
         }
 

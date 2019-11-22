@@ -155,7 +155,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
             viewpager_select_location.adapter = location_select_pager_adapter
             for (i in list) {
-                val location_select_fragment = LocationSelectFragment()
+                val location_select_fragment = LocationSelectFragment(this)
                 val bundle = Bundle()
                 bundle.putSerializable("location_info", i)
                 //bundle.putString("name", i.name)

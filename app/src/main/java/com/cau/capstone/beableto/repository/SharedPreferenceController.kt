@@ -3,6 +3,7 @@ package com.cau.capstone.beableto.repository
 import android.content.Context
 import com.cau.capstone.beableto.data.Location
 import com.cau.capstone.beableto.data.Setting
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.json.JSONArray
@@ -14,6 +15,7 @@ object SharedPreferenceController {
     private val SETTING: String = "SETTING"
     private val REALTIME_GPS: String = "REALTIME_GPS"
     private val RECENT_SEARCH: String = "RECENT_SEARCH"
+    private val CURRENT_LOCATION: String = "CURRENT_LOCATION"
     private val KEY_TOKEN: String = "KEY_TOKEN"
     private val KEY_IS_LOGIN: String = "KEY_IS_LOGIN"
     private val KEY_SHOW_STAIR: String = "KEY_SHOW_STAIR"
@@ -23,6 +25,8 @@ object SharedPreferenceController {
     private val KEY_REALTIME_GPS: String = "KEY_REALTIME_GPS"
     private val KEY_RECENT_WORD: String = "KEY_RECENT_WORD"
     private val KEY_RECENT_LOCATIONS: String = "KEY_RECENT_LOCATIONS"
+    private val KEY_CURRENT_LATITUDE: String = "KEY_CURRENT_LATITUDE"
+    private val KEY_CURRENT_LONGITUDE: String = "KEY_CURRENT_LONGITUDE"
     private var token: String? = ""
     private var isLogin: Boolean = false
 
@@ -89,7 +93,11 @@ object SharedPreferenceController {
         return real_time_gps
     }
 
-    fun setRecentSearchList(context: Context, search_keyword: String, search_location: ArrayList<Location>) {
+    fun setRecentSearchList(
+        context: Context,
+        search_keyword: String,
+        search_location: ArrayList<Location>
+    ) {
         val pref = context.getSharedPreferences(RECENT_SEARCH, Context.MODE_PRIVATE)
         val editor = pref.edit()
         val gson = Gson()
@@ -104,7 +112,7 @@ object SharedPreferenceController {
         try {
             var word_json_array = JSONArray()
             var locations_json_array = JSONArray()
-            if (word_json != null){
+            if (word_json != null) {
                 word_json_array = JSONArray(word_json)
                 locations_json_array = JSONArray(locations_json)
             }
@@ -158,7 +166,7 @@ object SharedPreferenceController {
         val gson = Gson()
         val json = pref.getString(KEY_RECENT_LOCATIONS, null)
         var locationArray: ArrayList<Location> = ArrayList()
-        val type = object: TypeToken<ArrayList<Location>>(){}.type
+        val type = object : TypeToken<ArrayList<Location>>() {}.type
         if (json != null) {
             try {
                 val jsonArray = JSONArray(json)
@@ -168,6 +176,22 @@ object SharedPreferenceController {
             }
         }
         return locationArray
+    }
+
+    fun setCurrentLocation(context: Context, latitude: Float, longitude: Float) {
+        val pref = context.getSharedPreferences(CURRENT_LOCATION, Context.MODE_PRIVATE)
+        pref.edit().clear().apply()
+        val editor = pref.edit()
+        editor.putFloat(KEY_CURRENT_LATITUDE, latitude)
+        editor.putFloat(KEY_CURRENT_LONGITUDE, longitude)
+        editor.commit()
+    }
+
+    fun getCurrentLocation(context: Context): LatLng {
+        val pref = context.getSharedPreferences(CURRENT_LOCATION, Context.MODE_PRIVATE)
+        val latitude: Float = pref.getFloat(KEY_CURRENT_LATITUDE, 0.0F)
+        val longitude: Float = pref.getFloat(KEY_CURRENT_LONGITUDE, 0.0F)
+        return LatLng(latitude.toDouble(), longitude.toDouble())
     }
 
     fun logout(context: Context) {
