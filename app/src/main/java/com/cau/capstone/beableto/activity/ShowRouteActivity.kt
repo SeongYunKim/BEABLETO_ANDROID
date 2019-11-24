@@ -18,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.maps.android.PolyUtil.decode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_show_route.*
@@ -228,38 +229,36 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 before_latlng = current_latlng
             }
         }
-        for (i in bus_latitude_list[num].indices) {
-            if (i != 0) {
-                current_latlng =
-                    LatLng(
-                        bus_latitude_list[num][i].toDouble(),
-                        bus_longitude_list[num][i].toDouble()
-                    )
-                if (i % 2 == 0) {
+        for (a in bus_poly_list[num].indices) {
+            //decodePoly(polyline)
+            if(a != 0){
+                val busLatLngList = decode(bus_poly_list[num][a])
+                for (i in 0 .. busLatLngList.size - 2) {
                     mMap.addPolyline(
-                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                        PolylineOptions().add(
+                            busLatLngList[i],
+                            busLatLngList[i + 1]
+                        ).width(10.0F).color(
                             Color.BLUE
                         )
                     )
                 }
-                before_latlng = current_latlng
             }
         }
-        for (i in train_latitude_list[num].indices) {
-            if (i != 0) {
-                current_latlng =
-                    LatLng(
-                        train_latitude_list[num][i].toDouble(),
-                        train_longitude_list[num][i].toDouble()
-                    )
-                if (i % 2 == 0) {
+        for (a in train_poly_list[num].indices) {
+            //decodePoly(polyline)
+            if(a != 0){
+                val trainLatLngList = decode(train_poly_list[num][a])
+                for (i in 0 .. trainLatLngList.size - 2) {
                     mMap.addPolyline(
-                        PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
+                        PolylineOptions().add(
+                            trainLatLngList[i],
+                            trainLatLngList[i + 1]
+                        ).width(10.0F).color(
                             Color.CYAN
                         )
                     )
                 }
-                before_latlng = current_latlng
             }
         }
     }
@@ -292,5 +291,51 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         val bounds = builder.build()
         val cu = CameraUpdateFactory.newLatLngBounds(bounds, padding)
         mMap.animateCamera(cu)
+    }
+
+    private fun decodePoly(encoded: String): List<LatLng> {
+        val poly = arrayListOf<LatLng>()
+        var index = 0
+        val len = encoded.length
+        var lat = 0
+        var lng = 0
+
+        while (index < len) {
+            var b: Int
+            var shift = 0
+            var result = 0
+            do {
+                b = (encoded[index++] - 63).toInt()
+                result = result or (b and 0x1f) shl shift
+                shift += 5
+            } while (b >= 0x20)
+
+            var dlat: Int
+            if ((result and 1) != 0)
+                dlat = -(result shl 1)
+            else
+                dlat = result shl 1
+            lat += dlat
+
+            shift = 0
+            result = 0
+            do {
+                b = (encoded[index++] - 63).toInt()
+                result = result or (b and 0x1f) shl shift
+                shift += 5
+            } while (b >= 0x20)
+
+            var dlng: Int
+            if ((result and 1) != 0)
+                dlng = -(result shl 1)
+            else
+                dlng = result shl 1
+            lng += dlng
+
+            val latlng = LatLng((lat.toDouble() / 1E5) * 1E6, (lng.toDouble() / 1E5) * 1E6)
+            Log.d("Decode", latlng.toString())
+            poly.add(latlng)
+        }
+        return poly
     }
 }
