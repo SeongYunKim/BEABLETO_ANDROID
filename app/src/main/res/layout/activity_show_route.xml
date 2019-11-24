@@ -84,10 +84,10 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/rl_select_route"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/ll_search"
-            android:visibility="gone">
+            android:layout_below="@id/ll_search">
 
             <fragment
                 android:id="@+id/map_show_route"
@@ -105,6 +105,8 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/ll_route_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_search"

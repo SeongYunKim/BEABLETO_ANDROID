@@ -4,13 +4,16 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
+import com.cau.capstone.beableto.Adapter.RouteDetailAdapter
 import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.data.RequestRoute
 import com.cau.capstone.beableto.data.Route
+import com.cau.capstone.beableto.data.RouteDetail
 import com.cau.capstone.beableto.fragment.RouteFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,6 +30,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private var route_pager_adapter: RoutePagerAdapter? = null
+    private lateinit var route_detail_adapter: RouteDetailAdapter
 
     private var time_list: MutableList<Int> = ArrayList()
     private var latitude_list: MutableList<MutableList<Float>> = ArrayList()
@@ -184,6 +188,17 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     route_pager_adapter!!.notifyDataSetChanged()
                     drawPolyLine(0)
                     adjustCamera()
+
+                    route_detail_adapter = RouteDetailAdapter(
+                        arrayListOf(
+                            RouteDetail(0, 18, null, null, null, null),
+                            RouteDetail(0, 18, null, null, null, null),
+                            RouteDetail(0, 18, null, null, null, null),
+                            RouteDetail(0, 18, null, null, null, null)
+                        ), this
+                    )
+                    recyclerview_show_route.layoutManager = LinearLayoutManager(this)
+                    recyclerview_show_route.adapter = route_detail_adapter
                 }, {
                     Log.d("SSibal_Error", Log.getStackTraceString(it))
                 })
@@ -231,9 +246,9 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         for (a in bus_poly_list[num].indices) {
             //decodePoly(polyline)
-            if(a != 0){
+            if (a != 0) {
                 val busLatLngList = decode(bus_poly_list[num][a])
-                for (i in 0 .. busLatLngList.size - 2) {
+                for (i in 0..busLatLngList.size - 2) {
                     mMap.addPolyline(
                         PolylineOptions().add(
                             busLatLngList[i],
@@ -247,9 +262,9 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         for (a in train_poly_list[num].indices) {
             //decodePoly(polyline)
-            if(a != 0){
+            if (a != 0) {
                 val trainLatLngList = decode(train_poly_list[num][a])
-                for (i in 0 .. trainLatLngList.size - 2) {
+                for (i in 0..trainLatLngList.size - 2) {
                     mMap.addPolyline(
                         PolylineOptions().add(
                             trainLatLngList[i],

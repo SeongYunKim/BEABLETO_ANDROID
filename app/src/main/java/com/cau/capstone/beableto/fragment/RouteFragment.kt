@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.activity.ShowRouteActivity
 import com.cau.capstone.beableto.data.Route
+import kotlinx.android.synthetic.main.activity_show_route.*
 import kotlinx.android.synthetic.main.viewpager_route.view.*
 
 class RouteFragment : Fragment() {
@@ -44,6 +46,11 @@ class RouteFragment : Fragment() {
                 view.vp_route_hour1.text = (route_info!!.time!! / 60 / 60).toString()
             }
             view.vp_route_minute1.text = (route_info!!.time!! / 60 % 60).toString()
+        }
+
+        view.btn_detail.setOnClickListener {
+            (activity as ShowRouteActivity).ll_route_detail.visibility = View.VISIBLE
+            (activity as ShowRouteActivity).rl_select_route.visibility = View.GONE
         }
 
         return view

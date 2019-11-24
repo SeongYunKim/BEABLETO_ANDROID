@@ -4,12 +4,12 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/ll_walk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:visibility="gone">
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp">
 
         <LinearLayout
             android:layout_width="90dp"
@@ -91,11 +91,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_bus_subway"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp">
 
         <LinearLayout
             android:layout_width="90dp"
@@ -107,6 +108,7 @@
             android:paddingBottom="15dp">
 
             <View
+                android:id="@+id/view_detail_transfer_id"
                 android:layout_width="13dp"
                 android:layout_height="150dp"
                 android:background="@drawable/route_line"
@@ -127,6 +129,7 @@
                 android:background="@color/colorGray" />
 
             <TextView
+                android:id="@+id/tv_detail_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@id/view2"
@@ -146,6 +149,7 @@
                 android:background="@color/colorGray" />
 
             <TextView
+                android:id="@+id/tv_detail_end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/view2"
@@ -156,7 +160,7 @@
                 android:textSize="18sp" />
 
             <Button
-                android:id="@+id/transfer_id_btn"
+                android:id="@+id/btn_transfer_id"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_below="@id/view1"
@@ -169,9 +173,10 @@
                 android:textSize="13sp" />
 
             <TextView
+                android:id="@+id/tv_detail_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/transfer_id_btn"
+                android:layout_below="@id/btn_transfer_id"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:text="지하철 약 12분"
@@ -179,11 +184,12 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/tv_detail_elevator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/transfer_id_btn"
+                android:layout_alignBaseline="@id/btn_transfer_id"
                 android:layout_marginLeft="15dp"
-                android:layout_toRightOf="@id/transfer_id_btn"
+                android:layout_toRightOf="@id/btn_transfer_id"
                 android:text="9번출구 앞 승강기"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp" />
