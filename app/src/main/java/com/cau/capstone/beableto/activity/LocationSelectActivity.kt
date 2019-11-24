@@ -109,6 +109,15 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
+    override fun onBackPressed() {
+        if (viewpager_select_location.visibility == View.VISIBLE) {
+            viewpager_select_location.visibility = View.GONE
+            recyclerview_select_location.visibility = View.VISIBLE
+        } else{
+            finish()
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val INIT = LatLng(37.50352, 126.95706)

@@ -3,6 +3,7 @@ package com.cau.capstone.beableto.activity
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
@@ -109,6 +110,15 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 adjustCamera()
             }
         })
+    }
+
+    override fun onBackPressed() {
+        if (ll_route_detail.visibility == View.VISIBLE) {
+            ll_route_detail.visibility = View.GONE
+            rl_select_route.visibility = View.VISIBLE
+        } else{
+            finish()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
