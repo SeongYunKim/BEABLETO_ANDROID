@@ -75,10 +75,10 @@ class RouteFragment : Fragment() {
             }
             val walk_hour = route_info!!.walk_time!! / 60 / 60
             val walk_minute = route_info!!.walk_time!! / 60 % 60
-            if(hour != 0){
+            if(walk_hour != 0){
                 detail_walk_time += walk_hour.toString() + "시간 "
             }
-            if(minute != 0){
+            if(walk_minute != 0){
                 detail_walk_time += walk_minute.toString() + "분"
             }
             activity.tv_detail_time2.text = detail_time
