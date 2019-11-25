@@ -157,6 +157,18 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                         var time = 0
                         var walk_time = 0
                         var sub_time: Int
+                        route_detail_list[ps].add(
+                            RouteDetail(
+                                -1,
+                                0,
+                                et_search_start.text.toString(),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                            )
+                        )
                         for (p in response.paths[ps].path) {
                             sub_time = 0
                             if (p.time != null) {
@@ -224,6 +236,18 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                 )
                             }
                         }
+                        route_detail_list[ps].add(
+                            RouteDetail(
+                                -1,
+                                0,
+                                et_search_end.text.toString(),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                            )
+                        )
                         walk_time_list.add(walk_time)
                         time_list.add(time)
                     }
@@ -344,7 +368,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
             ).title("도착점")
         )
         val bound_markers_list: MutableList<Marker> = ArrayList()
-        val padding = 100
+        val padding = 400
         bound_markers_list.add(start_marker)
         bound_markers_list.add(end_marker)
         val builder = LatLngBounds.Builder()
