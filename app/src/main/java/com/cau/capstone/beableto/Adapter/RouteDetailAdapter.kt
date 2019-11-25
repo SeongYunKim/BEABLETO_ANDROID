@@ -1,9 +1,13 @@
 package com.cau.capstone.beableto.Adapter
 
+import android.app.Activity
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.data.RouteDetail
@@ -28,10 +32,37 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
     ) {
         items[position].let { item ->
             with(holder) {
-                if (position % 2 == 0) {
+                if (item.type == 0) {
                     ll_bus_subway.visibility = View.GONE
+                    tv_walk_time.text = "도보 약 " + (item.time / 60).toString() + "분"
                 } else {
                     ll_walk.visibility = View.GONE
+                    tv_detail_start.text = item.start + " 승차"
+                    tv_detail_end.text = item.end + " 하차"
+                    btn_transfer_id.text = item.transfer_id + "  >"
+                    when (item.type) {
+                        1 -> {
+                            tv_detail_time.text = "버스 약 " + (item.time / 60).toString() + "분"
+                            view_detail_transfer_id.backgroundTintList =
+                                ContextCompat.getColorStateList(mContext, R.color.colorBlue)
+                            btn_transfer_id.backgroundTintList =
+                                ContextCompat.getColorStateList(mContext, R.color.colorBlue)
+                            when (item.bus_height) {
+                                0 -> tv_detail_elevator.text = "비저상버스"
+                                1 -> tv_detail_elevator.text = "저상버스"
+                                2 -> tv_detail_elevator.text = "정보없음"
+                            }
+                            //tv_detail_elevator.text = item.bus_area
+                        }
+                        2 -> {
+                            view_detail_transfer_id.backgroundTintList =
+                                ContextCompat.getColorStateList(mContext, R.color.colorPrimary)
+                            btn_transfer_id.backgroundTintList =
+                                ContextCompat.getColorStateList(mContext, R.color.colorPrimary)
+                            tv_detail_time.text = "지하철 약 " + (item.time / 60).toString() + "분"
+                            tv_detail_elevator.text = item.elevator + " 앞 승강기"
+                        }
+                    }
                 }
             }
         }
@@ -43,5 +74,12 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
     ) {
         val ll_bus_subway = itemView.ll_bus_subway
         val ll_walk = itemView.ll_walk
+        val view_detail_transfer_id = itemView.view_detail_transfer_id
+        var tv_walk_time = itemView.tv_walk_time
+        var tv_detail_time = itemView.tv_detail_time
+        var tv_detail_start = itemView.tv_detail_start
+        var tv_detail_end = itemView.tv_detail_end
+        var btn_transfer_id = itemView.btn_transfer_id
+        var tv_detail_elevator = itemView.tv_detail_elevator
     }
 }

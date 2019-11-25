@@ -31,7 +31,6 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private var route_pager_adapter: RoutePagerAdapter? = null
-    private lateinit var route_detail_adapter: RouteDetailAdapter
 
     private var time_list: MutableList<Int> = ArrayList()
     private var latitude_list: MutableList<MutableList<Float>> = ArrayList()
@@ -43,6 +42,8 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
     private var train_longitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var train_poly_list: MutableList<MutableList<String>> = ArrayList()
     private var slope_list: MutableList<MutableList<Int>> = ArrayList()
+    private var route_detail_list = MutableList(5) { arrayListOf<RouteDetail>() }
+    private var walk_time_list = arrayListOf<Int>()
 
     private var latitude: Float? = null
     private var longitude: Float? = null
@@ -116,7 +117,8 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         if (ll_route_detail.visibility == View.VISIBLE) {
             ll_route_detail.visibility = View.GONE
             rl_select_route.visibility = View.VISIBLE
-        } else{
+            scrollview_route.pageScroll(View.FOCUS_UP)
+        } else {
             finish()
         }
     }
@@ -153,9 +155,17 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.d("SSibal", response.toString())
                     for (ps in response.paths.indices) {
                         var time = 0
+                        var walk_time = 0
+                        var sub_time: Int
                         for (p in response.paths[ps].path) {
-                            if (p.time != null)
-                                time += p.time.value
+                            sub_time = 0
+                            if (p.time != null) {
+                                sub_time = p.time.value
+                                time += sub_time
+                                if (p.type == "walk") {
+                                    walk_time += sub_time
+                                }
+                            }
                             if (p.type == "walk") {
                                 for (ws in p.walk_seq) {
                                     latitude_list[ps].add(ws.start_x!!)
@@ -164,20 +174,57 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                     longitude_list[ps].add(ws.end_y!!)
                                     slope_list[ps].add(ws.slope)
                                 }
+                                route_detail_list[ps].add(
+                                    RouteDetail(
+                                        0,
+                                        sub_time,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null
+                                    )
+                                )
                             } else if (p.type == "bus") {
                                 bus_latitude_list[ps].add(p.bus_start_x!!)
                                 bus_longitude_list[ps].add(p.bus_start_y!!)
                                 bus_latitude_list[ps].add(p.bus_end_x!!)
                                 bus_longitude_list[ps].add(p.bus_end_y!!)
                                 bus_poly_list[ps].add(p.bus_poly!!)
+                                route_detail_list[ps].add(
+                                    RouteDetail(
+                                        1,
+                                        sub_time,
+                                        "중앙대학교후문",
+                                        "상도SH빌아파트상도팰리스후문",
+                                        p.bus_line,
+                                        null,
+                                        p.bus_height,
+                                        p.bus_area
+                                    )
+                                )
                             } else if (p.type == "train") {
                                 train_latitude_list[ps].add(p.train_start_x!!)
                                 train_longitude_list[ps].add(p.train_start_y!!)
                                 train_latitude_list[ps].add(p.train_end_x!!)
                                 train_longitude_list[ps].add(p.train_end_y!!)
                                 train_poly_list[ps].add(p.train_poly!!)
+                                route_detail_list[ps].add(
+                                    RouteDetail(
+                                        2,
+                                        sub_time,
+                                        "고속터미널역",
+                                        "상도역",
+                                        p.train_line,
+                                        "7번 출구",
+                                        null,
+                                        null
+                                    )
+                                )
                             }
                         }
+                        walk_time_list.add(walk_time)
                         time_list.add(time)
                     }
                     Log.d("time_list", time_list.toString())
@@ -188,8 +235,10 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                             "route_info",
                             Route(
                                 time_list[i],
+                                walk_time_list[i],
                                 bus_poly_list[i].size > 1,
-                                train_poly_list[i].size > 1
+                                train_poly_list[i].size > 1,
+                                route_detail_list[i]
                             )
                         )
                         route_fragment.arguments = bundle
@@ -198,17 +247,6 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     route_pager_adapter!!.notifyDataSetChanged()
                     drawPolyLine(0)
                     adjustCamera()
-
-                    route_detail_adapter = RouteDetailAdapter(
-                        arrayListOf(
-                            RouteDetail(0, 18, null, null, null, null),
-                            RouteDetail(0, 18, null, null, null, null),
-                            RouteDetail(0, 18, null, null, null, null),
-                            RouteDetail(0, 18, null, null, null, null)
-                        ), this
-                    )
-                    recyclerview_show_route.layoutManager = LinearLayoutManager(this)
-                    recyclerview_show_route.adapter = route_detail_adapter
                 }, {
                     Log.d("SSibal_Error", Log.getStackTraceString(it))
                 })
