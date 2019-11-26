@@ -2,6 +2,7 @@ package com.cau.capstone.beableto.Adapter
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -10,7 +11,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.activity.RegisterBusActivity
 import com.cau.capstone.beableto.data.RouteDetail
+import com.cau.capstone.beableto.fragment.BusRegisterFragment
 import kotlinx.android.synthetic.main.list_route_fragment.view.*
 
 class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
@@ -73,6 +76,14 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
                             ContextCompat.getColorStateList(mContext, R.color.colorPrimary)
                         tv_detail_time.text = "지하철 약 " + (item.time / 60).toString() + "분"
                         tv_detail_elevator.text = item.elevator + " 앞 승강기"
+                    }
+                }
+                btn_transfer_id.setOnClickListener {
+                    if(item.type == 1){
+                        //val intent = Intent(mContext, RegisterBusActivity::class.java)
+                        //(mContext as Activity).startActivity(intent)
+                        val busRegisterFragment = BusRegisterFragment(mContext, item.bus_area!!, item.transfer_id!!)
+                        busRegisterFragment.show()
                     }
                 }
             }
