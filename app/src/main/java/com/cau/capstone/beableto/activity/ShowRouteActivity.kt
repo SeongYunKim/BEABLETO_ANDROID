@@ -12,20 +12,21 @@ import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
+import com.cau.capstone.beableto.data.HelpCenter
 import com.cau.capstone.beableto.data.RequestRoute
 import com.cau.capstone.beableto.data.Route
 import com.cau.capstone.beableto.data.RouteDetail
+import com.cau.capstone.beableto.fragment.HelpCenterFragment
 import com.cau.capstone.beableto.fragment.RouteFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.PolyUtil.decode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_show_route.*
+import kotlinx.android.synthetic.main.help_center_dialog.*
 
 class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -111,6 +112,13 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 adjustCamera()
             }
         })
+
+        btn_help_center.setOnClickListener {
+            val help_center =
+                HelpCenter(35.1978078f, 129.0799214f, "부산광역시 특별교통총괄본부", 158, "051-466-8800")
+            val helpCenterFragment = HelpCenterFragment(this, help_center)
+            helpCenterFragment.show()
+        }
     }
 
     override fun onBackPressed() {
