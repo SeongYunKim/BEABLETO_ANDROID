@@ -22,5 +22,8 @@ data class SubPath(
     val train_end_x: Float?,
     val train_end_y: Float?,
     val train_line: String?,
-    val train_poly: String?
+    val train_poly: String?,
+    val color: String?,
+    val departure: String?,
+    val arrival: String?
 )

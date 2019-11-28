@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,10 +54,8 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
                         tv_detail_end.text = item.end + " 하차"
                         btn_transfer_id.text = item.transfer_id + "  >"
                         tv_detail_time.text = "버스 약 " + (item.time / 60).toString() + "분"
-                        view_detail_transfer_id.backgroundTintList =
-                            ContextCompat.getColorStateList(mContext, R.color.colorBlue)
-                        btn_transfer_id.backgroundTintList =
-                            ContextCompat.getColorStateList(mContext, R.color.colorBlue)
+                        view_detail_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
+                        btn_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
                         when (item.bus_height) {
                             0 -> tv_detail_elevator.text = "비저상버스"
                             1 -> tv_detail_elevator.text = "저상버스"
@@ -70,10 +69,8 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
                         tv_detail_start.text = item.start + " 승차"
                         tv_detail_end.text = item.end + " 하차"
                         btn_transfer_id.text = item.transfer_id + "  >"
-                        view_detail_transfer_id.backgroundTintList =
-                            ContextCompat.getColorStateList(mContext, R.color.colorPrimary)
-                        btn_transfer_id.backgroundTintList =
-                            ContextCompat.getColorStateList(mContext, R.color.colorPrimary)
+                        view_detail_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
+                        btn_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
                         tv_detail_time.text = "지하철 약 " + (item.time / 60).toString() + "분"
                         tv_detail_elevator.text = item.elevator + " 앞 승강기"
                     }

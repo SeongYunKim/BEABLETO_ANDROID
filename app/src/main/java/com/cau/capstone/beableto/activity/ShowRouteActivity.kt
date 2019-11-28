@@ -174,6 +174,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                 null,
                                 null,
                                 null,
+                                null,
                                 null
                             )
                         )
@@ -203,6 +204,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                         null,
                                         null,
                                         null,
+                                        null,
                                         null
                                     )
                                 )
@@ -216,12 +218,13 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                     RouteDetail(
                                         1,
                                         sub_time,
-                                        "중앙대학교후문",
-                                        "상도SH빌아파트상도팰리스후문",
+                                        p.departure,
+                                        p.arrival,
                                         p.bus_line,
                                         null,
                                         p.bus_height,
-                                        p.bus_area
+                                        p.bus_area,
+                                        p.color
                                     )
                                 )
                             } else if (p.type == "train") {
@@ -234,12 +237,13 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                     RouteDetail(
                                         2,
                                         sub_time,
-                                        "고속터미널역",
-                                        "상도역",
+                                        p.departure,
+                                        p.arrival,
                                         p.train_line,
-                                        "7번 출구",
+                                        p.walk_sub,
                                         null,
-                                        null
+                                        null,
+                                        p.color
                                     )
                                 )
                             }
@@ -249,6 +253,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                                 -1,
                                 0,
                                 et_search_end.text.toString(),
+                                null,
                                 null,
                                 null,
                                 null,

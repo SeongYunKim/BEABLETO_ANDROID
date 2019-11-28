@@ -8,5 +8,6 @@ data class RouteDetail (
     var transfer_id: String?,
     var elevator: String?,
     var bus_height: Int?,
-    var bus_area: String?
+    var bus_area: String?,
+    var color: String?
 )
