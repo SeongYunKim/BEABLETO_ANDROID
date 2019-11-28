@@ -29,7 +29,7 @@ class HelpCenterFragment(context: Context, help_center: HelpCenter) : Dialog(con
         setContentView(R.layout.help_center_dialog)
 
         tv_help_center.text = "기관명: " + help_center.name
-        tv_car_num.text = "보유차량대수: " + help_center.car_num
+        tv_car_num.text = "보유차량대수: " + help_center.car
 
         val mMapView = findViewById<MapView>(R.id.map_help_center)
         MapsInitializer.initialize(context)
@@ -37,7 +37,7 @@ class HelpCenterFragment(context: Context, help_center: HelpCenter) : Dialog(con
         mMapView.onResume()
         mMapView.getMapAsync(object : OnMapReadyCallback {
             override fun onMapReady(p0: GoogleMap?) {
-                val INIT = LatLng(help_center.latitude.toDouble(), help_center.longitude.toDouble())
+                val INIT = LatLng(help_center.x_axis.toDouble(), help_center.y_axis.toDouble())
                 p0!!.addMarker(MarkerOptions().position(INIT))
                 p0.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
             }

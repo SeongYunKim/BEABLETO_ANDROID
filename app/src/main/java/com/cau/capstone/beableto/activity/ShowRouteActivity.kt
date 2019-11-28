@@ -12,15 +12,13 @@ import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
-import com.cau.capstone.beableto.data.HelpCenter
-import com.cau.capstone.beableto.data.RequestRoute
-import com.cau.capstone.beableto.data.Route
-import com.cau.capstone.beableto.data.RouteDetail
+import com.cau.capstone.beableto.data.*
 import com.cau.capstone.beableto.fragment.HelpCenterFragment
 import com.cau.capstone.beableto.fragment.RouteFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.PolyUtil.decode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -114,10 +112,26 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         btn_help_center.setOnClickListener {
-            val help_center =
-                HelpCenter(35.1978078f, 129.0799214f, "부산광역시 특별교통총괄본부", 158, "051-466-8800")
-            val helpCenterFragment = HelpCenterFragment(this, help_center)
-            helpCenterFragment.show()
+            val requestHelpCenter = RequestHelpCenter(start_latitude!!, start_longitude!!)
+            NetworkCore.getNetworkCore<BEABLETOAPI>()
+                .requestHelpCenter(
+                    SharedPreferenceController.getAuthorization(this), requestHelpCenter
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response ->
+                    val help_center = HelpCenter(
+                        response.name,
+                        response.x_axis,
+                        response.y_axis,
+                        response.phone,
+                        response.car
+                    )
+                    val helpCenterFragment = HelpCenterFragment(this, help_center)
+                    helpCenterFragment.show()
+                }, {
+                    Log.d("Help_Center_Error", Log.getStackTraceString(it))
+                })
         }
     }
 

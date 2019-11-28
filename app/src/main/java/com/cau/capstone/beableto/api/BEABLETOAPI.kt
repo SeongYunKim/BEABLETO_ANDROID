@@ -88,6 +88,12 @@ interface BEABLETOAPI {
         @Body body: RequestSaveBus
     ): Completable
 
+    @POST("/information/gethelp/")
+    fun requestHelpCenter(
+        @Header("Authorization") authorization: String?,
+        @Body body: RequestHelpCenter
+    ): Single<HelpCenter>
+
 
     //로그아웃 "/accounts/logout/"
 }
