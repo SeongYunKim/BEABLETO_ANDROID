@@ -37,6 +37,7 @@
         <activity android:name=".activity.LocationSelectActivity" />
         <activity android:name=".activity.ShowRouteActivity" />
         <activity android:name=".activity.RegisterBusActivity" />
+        <activity android:name=".activity.PointRankingActivity" />
         <activity
             android:name=".activity.SplashActivity"
             android:screenOrientation="portrait">

@@ -42,17 +42,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:text="접근성 정보를 제공하고 포인트왕이 되어보세요!!"
             android:textColor="@color/colorGrayDark"
             android:textSize="17sp"
             android:textStyle="bold" />
-        
+
         <LinearLayout
-            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="47dp"
+            android:layout_marginTop="20dp"
             android:background="#BDECB6"
             android:orientation="horizontal">
 
@@ -98,31 +98,29 @@
                 android:textSize="18sp" />
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_show_route"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/list_point" />
-
         <LinearLayout
+            android:background="#F8DE7E"
             android:layout_width="match_parent"
             android:layout_height="47dp"
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/my_rank"
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:text="100"
+                android:text="27"
                 android:textColor="@color/colorBlack"
                 android:textSize="20sp" />
 
             <TextView
+                android:id="@+id/my_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="cauboy17"
                 android:textColor="@color/colorBlack"
                 android:textSize="18sp" />
@@ -133,6 +131,7 @@
                 android:layout_weight="1" />
 
             <TextView
+                android:id="@+id/my_month_point"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -143,6 +142,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/my_point"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -152,6 +152,13 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="18sp" />
         </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_rank"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/list_point" />
     </LinearLayout>
 
 </layout>

@@ -92,8 +92,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         /////////////////////////////////////////////////////////////////////////////
         drawer_admin.setOnClickListener {
-            val intent = Intent(this, RegisterRouteActivity::class.java)
-            intent.putExtra("admin", true)
+            val intent = Intent(this, PointRankingActivity::class.java)
             startActivity(intent)
         }
         /////////////////////////////////////////////////////////////////////////////

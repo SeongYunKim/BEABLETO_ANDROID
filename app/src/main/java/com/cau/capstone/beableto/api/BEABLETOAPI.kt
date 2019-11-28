@@ -71,5 +71,16 @@ interface BEABLETOAPI {
         @Body body: RequestRegisterRealTimeLocation
     ): Completable
 
+    @POST("/information/getlocation/")
+    fun requestLocationSearch(
+        @Header("Authorization") authorization: String?,
+        @Body body: RequestLocationSearch
+    ): Single<ResponseLocationSearch>
+
+    @GET("/information/getrank/")
+    fun requestRanking(
+        @Header("Authorization") authorization: String?
+    ): Single<ResponsePointRanking>
+
     //로그아웃 "/accounts/logout/"
 }
