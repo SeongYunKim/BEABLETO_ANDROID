@@ -82,5 +82,12 @@ interface BEABLETOAPI {
         @Header("Authorization") authorization: String?
     ): Single<ResponsePointRanking>
 
+    @POST("/information/savebus/")
+    fun requestSaveBus(
+        @Header("Authorization") authorization: String?,
+        @Body body: RequestSaveBus
+    ): Completable
+
+
     //로그아웃 "/accounts/logout/"
 }
