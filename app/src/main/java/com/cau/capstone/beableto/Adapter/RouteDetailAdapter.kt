@@ -72,7 +72,10 @@ class RouteDetailAdapter(item: ArrayList<RouteDetail>, context: Context) :
                         view_detail_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
                         btn_transfer_id.getBackground().setColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_ATOP)
                         tv_detail_time.text = "지하철 약 " + (item.time / 60).toString() + "분"
-                        tv_detail_elevator.text = item.elevator + " 앞 승강기"
+                        if(item.elevator != null)
+                            tv_detail_elevator.text = item.elevator + " 앞 승강기"
+                        else
+                            tv_detail_elevator.visibility = View.GONE
                     }
                 }
                 btn_transfer_id.setOnClickListener {
