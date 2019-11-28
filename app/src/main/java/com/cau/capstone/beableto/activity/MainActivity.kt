@@ -24,12 +24,10 @@ import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseFragmentOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
+import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -41,7 +39,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val GET_REGISTER_LOCATION = 9012
     private val SETTING = 7890
     private val PERMISSION_CODE = 3456
-    private lateinit var mMap: GoogleMap
+    private var mMap: GoogleMap? = null
+    private lateinit var mapFragment: SupportMapFragment
     private var mLocationPermissionGranted = false
     private lateinit var lastLocation: Location
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
@@ -62,8 +61,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         fab_open = AnimationUtils.loadAnimation(applicationContext, R.anim.fab_open)
         fab_close = AnimationUtils.loadAnimation(applicationContext, R.anim.fab_close)
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        //mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        //mapFragment.getMapAsync(this)
 
         var setting = SharedPreferenceController.getSetting(this@MainActivity)
         stair_marker = setting.stair
@@ -135,19 +134,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         */
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+        if (mMap != null) {
+            mMap!!.clear()
+            mClusterManger.clearItems()
+            getAllMarkerInfo()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         var latitude: Float?
         var longitude: Float?
         if (requestCode == GET_REGISTER_LOCATION && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("latitude") && data.hasExtra("longitude")) {
-                mMap.clear()
+                mMap!!.clear()
                 mClusterManger.clearItems()
                 getAllMarkerInfo()
                 latitude = data.getFloatExtra("latitude", 0.0F)
                 longitude = data.getFloatExtra("longitude", 0.0F)
                 Log.d("MainData", latitude.toString() + " " + longitude.toString())
-                mMap.moveCamera(
+                mMap!!.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(
                             latitude.toDouble(),
@@ -165,7 +176,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             sharp_marker = setting.sharp
             gentle_marker = setting.gentle
             show_route = setting.route
-            mMap.clear()
+            mMap!!.clear()
             mClusterManger.clearItems()
             getAllMarkerInfo()
         } else {
@@ -210,7 +221,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val INIT = LatLng(37.50352, 126.95706)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
+        mMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(INIT, 18.0F))
         if (mLocationPermissionGranted) {
             getDeviceLocation()
             if (ActivityCompat.checkSelfPermission(
@@ -223,26 +234,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ) {
                 return
             }
-            mMap.isMyLocationEnabled = true
+            mMap!!.isMyLocationEnabled = true
             mClusterManger = ClusterManager(this, mMap)
             mapLoadedCallBack()
         }
     }
 
     private fun mapLoadedCallBack() {
-        mMap.setOnMapLoadedCallback {
-            mClusterManger.renderer = CustomClusterAdapter(this, mMap, mClusterManger)
+        mMap!!.setOnMapLoadedCallback {
+            mClusterManger.renderer = CustomClusterAdapter(this, mMap!!, mClusterManger)
             //mMap.setOnCameraIdleListener(mClusterManger)
+            mMap!!.clear()
+            mClusterManger.clearItems()
             getAllMarkerInfo()
-            if (show_route && mMap.cameraPosition.zoom > 15.0F) {
+            if (show_route && mMap!!.cameraPosition.zoom > 15.0F) {
                 getFragment(getMapBound())
             }
         }
 
-        mMap.setOnCameraChangeListener(object : GoogleMap.OnCameraChangeListener {
+        mMap!!.setOnCameraChangeListener(object : GoogleMap.OnCameraChangeListener {
             override fun onCameraChange(p0: CameraPosition?) {
                 mClusterManger.onCameraIdle()
-                if (show_route && mMap.cameraPosition.zoom > 15.0F) {
+                if (show_route && mMap!!.cameraPosition.zoom > 15.0F) {
                     //mMap.clear()
                     //mClusterManger.onCameraIdle()
                     getFragment(getMapBound())
@@ -252,7 +265,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         et_main_place_search.setOnClickListener {
             val intent = Intent(this, AutoSuggestActivity::class.java)
-            SharedPreferenceController.setCurrentLocation(this, lastLocation.latitude.toFloat(), lastLocation.longitude.toFloat())
+            SharedPreferenceController.setCurrentLocation(
+                this,
+                lastLocation.latitude.toFloat(),
+                lastLocation.longitude.toFloat()
+            )
             startActivity(intent)
         }
 
@@ -282,7 +299,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (location != null) {
                         lastLocation = location
                         val currentLatLng = LatLng(location.latitude, location.longitude)
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18.0F))
+                        mMap!!.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                currentLatLng,
+                                18.0F
+                            )
+                        )
                     }
                 }
             }
@@ -292,7 +314,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getMapBound(): Pair<LatLng, LatLng> {
-        val bounds = mMap.projection.visibleRegion.latLngBounds
+        val bounds = mMap!!.projection.visibleRegion.latLngBounds
         val northEast = bounds.northeast
         val southWest = bounds.southwest
         return Pair(northEast, southWest)
@@ -436,19 +458,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 current_latlng =
                     LatLng(latitude_list[i + 1].toDouble(), longitude_list[i + 1].toDouble())
                 if (slope_list[i / 2] == 0) {
-                    mMap.addPolyline(
+                    mMap!!.addPolyline(
                         PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                             Color.MAGENTA
                         )
                     )
                 } else if (slope_list[i / 2] == 1) {
-                    mMap.addPolyline(
+                    mMap!!.addPolyline(
                         PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                             Color.RED
                         )
                     )
                 } else if (slope_list[i / 2] == 2) {
-                    mMap.addPolyline(
+                    mMap!!.addPolyline(
                         PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
                             Color.BLACK
                         )
