@@ -94,6 +94,12 @@ interface BEABLETOAPI {
         @Body body: RequestHelpCenter
     ): Single<HelpCenter>
 
+    @POST("/information/getinfo/")
+    fun requestLocationPhoto(
+        @Header("Authorization") authorization: String?,
+        @Body body: RequestLocationPhoto
+    ): Single<ResponseLocationPhoto>
+
 
     //로그아웃 "/accounts/logout/"
 }

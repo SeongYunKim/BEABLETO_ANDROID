@@ -20,10 +20,8 @@ import com.cau.capstone.beableto.Adapter.CustomClusterAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
 import com.cau.capstone.beableto.api.NetworkCore
-import com.cau.capstone.beableto.data.ClusteringLocation
-import com.cau.capstone.beableto.data.RequestMarkerOnMap
-import com.cau.capstone.beableto.data.ResponseFragmentOnMap
-import com.cau.capstone.beableto.data.ResponseMarkerOnMap
+import com.cau.capstone.beableto.data.*
+import com.cau.capstone.beableto.fragment.LocationPhotoFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -52,6 +50,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fab_close: Animation
     private var isFabOpen: Boolean = false
     private lateinit var mClusterManger: ClusterManager<ClusteringLocation>
+
+    private var location_x: Float = 0f
+    private var location_y: Float = 0f
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -220,7 +221,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onBackPressed() {
         if (main_marker_info.visibility == View.VISIBLE) {
             main_marker_info.visibility = View.GONE
-        } else{
+        } else {
             finish()
         }
     }
@@ -265,53 +266,105 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     main_marker_info.visibility = View.VISIBLE
                     vp_main_name.text = p0!!.location_name
                     vp_main_address.text = p0.location_address
+                    location_x = p0.latitude.toFloat()
+                    location_y = p0.longitude.toFloat()
                     when (p0.location_slope) {
                         0 -> {
                             vp_main_slope.text = "경사 완만"
-                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                            vp_main_slope.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorPrimary
+                                )
+                            )
                         }
                         1 -> {
                             vp_main_slope.text = "경사 급함"
-                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                            vp_main_slope.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorBlack
+                                )
+                            )
                         }
                         2 -> {
                             vp_main_slope.text = "계단"
-                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                            vp_main_slope.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorBlack
+                                )
+                            )
                         }
                     }
                     when (p0.location_auto_door) {
                         true -> {
                             vp_main_auto_door.text = "자동문"
-                            vp_main_auto_door.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                            vp_main_auto_door.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorPrimary
+                                )
+                            )
                         }
                         false -> {
                             vp_main_auto_door.text = "수동문"
-                            vp_main_auto_door.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                            vp_main_auto_door.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorBlack
+                                )
+                            )
                         }
                     }
                     when (p0.location_elevator) {
                         true -> {
                             vp_main_elevator.text = "있음"
-                            vp_main_elevator.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                            vp_main_elevator.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorPrimary
+                                )
+                            )
                         }
                         false -> {
                             vp_main_elevator.text = "없음"
-                            vp_main_elevator.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                            vp_main_elevator.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorBlack
+                                )
+                            )
                         }
                     }
                     when (p0.location_toilet) {
                         true -> {
                             vp_main_toilet.text = "있음"
-                            vp_main_toilet.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                            vp_main_toilet.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorPrimary
+                                )
+                            )
                         }
                         false -> {
                             vp_main_toilet.text = "없음"
-                            vp_main_toilet.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                            vp_main_toilet.setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.colorBlack
+                                )
+                            )
                         }
                     }
                     return true
                 }
             })
+
+            btn_image.setOnClickListener {
+                val locationPhotoFragment = LocationPhotoFragment(this, location_x, location_y)
+                locationPhotoFragment.show()
+            }
         }
 
         mMap!!.setOnCameraChangeListener(object : GoogleMap.OnCameraChangeListener {
