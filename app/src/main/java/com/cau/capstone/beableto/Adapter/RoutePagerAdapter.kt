@@ -8,6 +8,7 @@ import androidx.viewpager.widget.PagerAdapter
 class RoutePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
     private var fragments: ArrayList<Fragment> = ArrayList()
+    private var baseId: Long = 0
 
     override fun getItem(position: Int): Fragment {
         return fragments[position]
@@ -21,7 +22,19 @@ class RoutePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         return PagerAdapter.POSITION_NONE
     }
 
+    fun clear(){
+        fragments.clear()
+    }
+
     fun addItem(fragment: Fragment){
         fragments.add(fragment)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return baseId + position
+    }
+
+    fun notifyChangePosition(n: Int){
+        baseId += count + n
     }
 }

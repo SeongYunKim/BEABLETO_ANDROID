@@ -434,6 +434,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     route_fragment.arguments = bundle
                     route_pager_adapter!!.addItem(route_fragment)
                 }
+                route_pager_adapter!!.notifyChangePosition(5)
                 route_pager_adapter!!.notifyDataSetChanged()
                 drawPolyLine(0)
                 adjustCamera()
