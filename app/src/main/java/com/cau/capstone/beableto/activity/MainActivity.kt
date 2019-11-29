@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.core.app.ActivityCompat
@@ -24,7 +25,6 @@ import com.cau.capstone.beableto.data.RequestMarkerOnMap
 import com.cau.capstone.beableto.data.ResponseFragmentOnMap
 import com.cau.capstone.beableto.data.ResponseMarkerOnMap
 import com.cau.capstone.beableto.repository.SharedPreferenceController
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -134,7 +134,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         */
     }
 
-
     override fun onResume() {
         super.onResume()
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -218,6 +217,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onBackPressed() {
+        if (main_marker_info.visibility == View.VISIBLE) {
+            main_marker_info.visibility = View.GONE
+        } else{
+            finish()
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val INIT = LatLng(37.50352, 126.95706)
@@ -243,6 +250,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun mapLoadedCallBack() {
         mMap!!.setOnMapLoadedCallback {
             mClusterManger.renderer = CustomClusterAdapter(this, mMap!!, mClusterManger)
+            mMap!!.setOnMarkerClickListener(mClusterManger)
             //mMap.setOnCameraIdleListener(mClusterManger)
             mMap!!.clear()
             mClusterManger.clearItems()
@@ -250,6 +258,60 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (show_route && mMap!!.cameraPosition.zoom > 15.0F) {
                 getFragment(getMapBound())
             }
+
+            mClusterManger.setOnClusterItemClickListener(object :
+                ClusterManager.OnClusterItemClickListener<ClusteringLocation> {
+                override fun onClusterItemClick(p0: ClusteringLocation?): Boolean {
+                    main_marker_info.visibility = View.VISIBLE
+                    vp_main_name.text = p0!!.location_name
+                    vp_main_address.text = p0.location_address
+                    when (p0.location_slope) {
+                        0 -> {
+                            vp_main_slope.text = "경사 완만"
+                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                        }
+                        1 -> {
+                            vp_main_slope.text = "경사 급함"
+                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                        }
+                        2 -> {
+                            vp_main_slope.text = "계단"
+                            vp_main_slope.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                        }
+                    }
+                    when (p0.location_auto_door) {
+                        true -> {
+                            vp_main_auto_door.text = "자동문"
+                            vp_main_auto_door.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                        }
+                        false -> {
+                            vp_main_auto_door.text = "수동문"
+                            vp_main_auto_door.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                        }
+                    }
+                    when (p0.location_elevator) {
+                        true -> {
+                            vp_main_elevator.text = "있음"
+                            vp_main_elevator.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                        }
+                        false -> {
+                            vp_main_elevator.text = "없음"
+                            vp_main_elevator.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                        }
+                    }
+                    when (p0.location_toilet) {
+                        true -> {
+                            vp_main_toilet.text = "있음"
+                            vp_main_toilet.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
+                        }
+                        false -> {
+                            vp_main_toilet.text = "없음"
+                            vp_main_toilet.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.colorBlack))
+                        }
+                    }
+                    return true
+                }
+            })
         }
 
         mMap!!.setOnCameraChangeListener(object : GoogleMap.OnCameraChangeListener {
@@ -431,7 +493,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     ClusteringLocation(
                         r.x_axis.toDouble(),
                         r.y_axis.toDouble(),
+                        r.location_name,
+                        r.address,
                         r.slope,
+                        r.auto_door,
+                        r.toilet,
+                        r.elevator,
                         "안녕하세요"
                     )
                 )
@@ -460,7 +527,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (slope_list[i / 2] == 0) {
                     mMap!!.addPolyline(
                         PolylineOptions().add(before_latlng, current_latlng).width(10.0F).color(
-                            Color.MAGENTA
+                            Color.YELLOW
                         )
                     )
                 } else if (slope_list[i / 2] == 1) {

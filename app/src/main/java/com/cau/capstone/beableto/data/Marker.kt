@@ -7,5 +7,6 @@ data class Marker(
     val slope: Int,
     val auto_door: Boolean,
     val elevator: Boolean,
-    val toilet: Boolean
+    val toilet: Boolean,
+    val address: String
 )

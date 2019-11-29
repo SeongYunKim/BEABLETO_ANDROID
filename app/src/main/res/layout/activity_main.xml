@@ -91,8 +91,8 @@
                     android:layout_marginLeft="7dp"
                     android:layout_toRightOf="@id/ic_menu"
                     android:background="@null"
-                    android:hint="장소 찾기"
                     android:focusable="false"
+                    android:hint="장소 찾기"
                     android:textSize="17sp" />
             </RelativeLayout>
 
@@ -156,6 +156,166 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:src="@drawable/ic_plus"
                 app:fabCustomSize="75dp" />
+
+            <RelativeLayout
+                android:id="@+id/main_marker_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorWhite"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorWhite"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/colorGray" />
+
+                    <TextView
+                        android:id="@+id/vp_main_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="12dp"
+                        android:text="부어치킨 중앙대후문점"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/vp_main_address"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="3dp"
+                        android:ellipsize="start"
+                        android:singleLine="true"
+                        android:text="서울특별시 동작구 흑석로84"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="17sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="접근로 경사: "
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/vp_main_slope"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="정보 없음"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="출입문: "
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/vp_main_auto_door"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="자동문"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="승강기: "
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/vp_main_elevator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="있음"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:text="장애인 화장실: "
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/vp_main_toilet"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="없음"
+                            android:textColor="@color/colorBlack"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="14dp"
+                        android:background="@color/colorGray" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="190dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@color/colorGray" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="190dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@color/colorGray" />
+            </RelativeLayout>
         </RelativeLayout>
 
         <LinearLayout

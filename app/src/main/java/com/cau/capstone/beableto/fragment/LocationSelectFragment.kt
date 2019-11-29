@@ -38,7 +38,6 @@ class LocationSelectFragment : Fragment() {
             view.vp_location_slope.text = "경사 급함"
         else if (slope == 2)
             view.vp_location_slope.text = "계단"
-        view.vp_location_type.text = "카페, 커피"
 
 
         view.btn_end.setOnClickListener {

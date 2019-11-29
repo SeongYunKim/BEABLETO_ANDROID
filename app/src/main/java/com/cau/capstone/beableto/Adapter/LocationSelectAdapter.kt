@@ -33,7 +33,6 @@ class LocationSelectAdapter(item: ArrayList<Location>, context: Context) :
             with(holder) {
                 tv_location_name.text = item.name
                 tv_location_address.text = item.address
-                tv_location_type.text = "카페, 커피"
                 if(item.rate == null)
                     item.rate = 5.0F
                 tv_location_rating.text = "평점: " + item.rate.toString() + " / 5.0"
@@ -56,7 +55,6 @@ class LocationSelectAdapter(item: ArrayList<Location>, context: Context) :
     ) {
         val tv_location_name = itemView.tv_location_name
         val tv_location_address = itemView.tv_location_address
-        val tv_location_type = itemView.tv_location_type
         val tv_location_rating = itemView.tv_location_rating
         val btn_register_location = itemView.btn_register_location
     }
