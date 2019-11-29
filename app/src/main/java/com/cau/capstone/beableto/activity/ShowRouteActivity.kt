@@ -1,13 +1,13 @@
 package com.cau.capstone.beableto.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
-import com.cau.capstone.beableto.Adapter.RouteDetailAdapter
 import com.cau.capstone.beableto.Adapter.RoutePagerAdapter
 import com.cau.capstone.beableto.R
 import com.cau.capstone.beableto.api.BEABLETOAPI
@@ -22,14 +22,13 @@ import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.PolyUtil.decode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_show_route.*
-import kotlinx.android.synthetic.main.help_center_dialog.*
 
 class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private var route_pager_adapter: RoutePagerAdapter? = null
+    private val RESEARCH = 12345
 
     private var time_list: MutableList<Int> = ArrayList()
     private var latitude_list: MutableList<MutableList<Float>> = ArrayList()
@@ -54,28 +53,28 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_show_route)
+        init()
+
+        //viewpager_show_route.isSaveEnabled = false
+        start_latitude = SharedPreferenceController.getCurrentLocation(this).latitude.toFloat()
+        start_longitude = SharedPreferenceController.getCurrentLocation(this).longitude.toFloat()
 
         latitude = intent.getFloatExtra("latitude", 0.0F)
         longitude = intent.getFloatExtra("longitude", 0.0F)
-
         val type = intent.getStringExtra("type")
         val location_name = intent.getStringExtra("name")
 
-        for (x in 0 until 5) {
-            latitude_list.add(mutableListOf(0.0F))
-            longitude_list.add(mutableListOf(0.0F))
-            slope_list.add(mutableListOf(0))
-            bus_latitude_list.add(mutableListOf(0.0F))
-            bus_longitude_list.add(mutableListOf(0.0F))
-            bus_poly_list.add(mutableListOf(""))
-            train_latitude_list.add(mutableListOf(0.0F))
-            train_longitude_list.add(mutableListOf(0.0F))
-            train_poly_list.add(mutableListOf(""))
-        }
-
         if (type == "start") {
-
+            start_latitude = latitude!!
+            start_longitude = longitude!!
+            et_search_start.setText(location_name)
         } else if (type == "end") {
+            end_latitude = latitude
+            end_longitude = longitude
+            et_search_end.setText(location_name)
+        } else if (type == "end_first") {
+            end_latitude = latitude
+            end_longitude = longitude
             et_search_start.setText("현위치")
             et_search_end.setText(location_name)
         }
@@ -133,6 +132,18 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.d("Help_Center_Error", Log.getStackTraceString(it))
                 })
         }
+
+        et_search_start.setOnClickListener {
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            intent.putExtra("type", "start")
+            startActivityForResult(intent, RESEARCH)
+        }
+
+        et_search_end.setOnClickListener {
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            intent.putExtra("type", "end")
+            startActivityForResult(intent, RESEARCH)
+        }
     }
 
     override fun onBackPressed() {
@@ -155,152 +166,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
-            start_latitude = SharedPreferenceController.getCurrentLocation(this).latitude.toFloat()
-            start_longitude =
-                SharedPreferenceController.getCurrentLocation(this).longitude.toFloat()
-            end_latitude = latitude
-            end_longitude = longitude
-            val requestRoute =
-                RequestRoute(
-                    start_latitude!!,
-                    start_longitude!!,
-                    end_latitude!!,
-                    end_longitude!!
-                )
-            NetworkCore.getNetworkCore<BEABLETOAPI>()
-                .requestAdmin(
-                    SharedPreferenceController.getAuthorization(this), requestRoute
-                )
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response ->
-                    Log.d("SSibal", response.toString())
-                    for (ps in response.paths.indices) {
-                        var time = 0
-                        var walk_time = 0
-                        var sub_time: Int
-                        route_detail_list[ps].add(
-                            RouteDetail(
-                                -1,
-                                0,
-                                et_search_start.text.toString(),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                            )
-                        )
-                        for (p in response.paths[ps].path) {
-                            sub_time = 0
-                            if (p.time != null) {
-                                sub_time = p.time.value
-                                time += sub_time
-                                if (p.type == "walk") {
-                                    walk_time += sub_time
-                                }
-                            }
-                            if (p.type == "walk") {
-                                for (ws in p.walk_seq) {
-                                    latitude_list[ps].add(ws.start_x!!)
-                                    longitude_list[ps].add(ws.start_y!!)
-                                    latitude_list[ps].add(ws.end_x!!)
-                                    longitude_list[ps].add(ws.end_y!!)
-                                    slope_list[ps].add(ws.slope)
-                                }
-                                route_detail_list[ps].add(
-                                    RouteDetail(
-                                        0,
-                                        sub_time,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null
-                                    )
-                                )
-                            } else if (p.type == "bus") {
-                                bus_latitude_list[ps].add(p.bus_start_x!!)
-                                bus_longitude_list[ps].add(p.bus_start_y!!)
-                                bus_latitude_list[ps].add(p.bus_end_x!!)
-                                bus_longitude_list[ps].add(p.bus_end_y!!)
-                                bus_poly_list[ps].add(p.bus_poly!!)
-                                route_detail_list[ps].add(
-                                    RouteDetail(
-                                        1,
-                                        sub_time,
-                                        p.departure,
-                                        p.arrival,
-                                        p.bus_line,
-                                        null,
-                                        p.bus_height,
-                                        p.bus_area,
-                                        p.color
-                                    )
-                                )
-                            } else if (p.type == "train") {
-                                train_latitude_list[ps].add(p.train_start_x!!)
-                                train_longitude_list[ps].add(p.train_start_y!!)
-                                train_latitude_list[ps].add(p.train_end_x!!)
-                                train_longitude_list[ps].add(p.train_end_y!!)
-                                train_poly_list[ps].add(p.train_poly!!)
-                                route_detail_list[ps].add(
-                                    RouteDetail(
-                                        2,
-                                        sub_time,
-                                        p.departure,
-                                        p.arrival,
-                                        p.train_line,
-                                        p.walk_sub,
-                                        null,
-                                        null,
-                                        p.color
-                                    )
-                                )
-                            }
-                        }
-                        route_detail_list[ps].add(
-                            RouteDetail(
-                                -1,
-                                0,
-                                et_search_end.text.toString(),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                            )
-                        )
-                        walk_time_list.add(walk_time)
-                        time_list.add(time)
-                    }
-                    Log.d("time_list", time_list.toString())
-                    for (i in time_list.indices) {
-                        val route_fragment = RouteFragment()
-                        val bundle = Bundle()
-                        bundle.putSerializable(
-                            "route_info",
-                            Route(
-                                time_list[i],
-                                walk_time_list[i],
-                                bus_poly_list[i].size > 1,
-                                train_poly_list[i].size > 1,
-                                route_detail_list[i]
-                            )
-                        )
-                        route_fragment.arguments = bundle
-                        route_pager_adapter!!.addItem(route_fragment)
-                    }
-                    route_pager_adapter!!.notifyDataSetChanged()
-                    drawPolyLine(0)
-                    adjustCamera()
-                }, {
-                    Log.d("SSibal_Error", Log.getStackTraceString(it))
-                })
+            searchRoute()
         }
     }
 
@@ -384,7 +250,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     start_latitude!!.toDouble(),
                     start_longitude!!.toDouble()
                 )
-            ).title("시작점")
+            ).title("출발지")
         )
         val end_marker = mMap.addMarker(
             MarkerOptions().position(
@@ -392,7 +258,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                     end_latitude!!.toDouble(),
                     end_longitude!!.toDouble()
                 )
-            ).title("도착점")
+            ).title("도착지")
         )
         val bound_markers_list: MutableList<Marker> = ArrayList()
         val padding = 400
@@ -407,49 +273,227 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.animateCamera(cu)
     }
 
-    private fun decodePoly(encoded: String): List<LatLng> {
-        val poly = arrayListOf<LatLng>()
-        var index = 0
-        val len = encoded.length
-        var lat = 0
-        var lng = 0
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RESEARCH && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("research_type")) {
+                if (data.getStringExtra("research_type") == "start") {
+                    start_latitude = data.getFloatExtra("research_latitude", 0.0F)
+                    start_longitude = data.getFloatExtra("research_longitude", 0.0F)
+                    et_search_start.setText(data.getStringExtra("research_name"))
+                } else if (data.getStringExtra("research_type") == "end") {
+                    end_latitude = data.getFloatExtra("research_latitude", 0.0F)
+                    end_longitude = data.getFloatExtra("research_longitude", 0.0F)
+                    et_search_end.setText(data.getStringExtra("research_name"))
+                }
+                ll_route_detail.visibility = View.GONE
+                rl_select_route.visibility = View.VISIBLE
+                searchRoute()
+            }
+        } else {
 
-        while (index < len) {
-            var b: Int
-            var shift = 0
-            var result = 0
-            do {
-                b = (encoded[index++] - 63).toInt()
-                result = result or (b and 0x1f) shl shift
-                shift += 5
-            } while (b >= 0x20)
-
-            var dlat: Int
-            if ((result and 1) != 0)
-                dlat = -(result shl 1)
-            else
-                dlat = result shl 1
-            lat += dlat
-
-            shift = 0
-            result = 0
-            do {
-                b = (encoded[index++] - 63).toInt()
-                result = result or (b and 0x1f) shl shift
-                shift += 5
-            } while (b >= 0x20)
-
-            var dlng: Int
-            if ((result and 1) != 0)
-                dlng = -(result shl 1)
-            else
-                dlng = result shl 1
-            lng += dlng
-
-            val latlng = LatLng((lat.toDouble() / 1E5) * 1E6, (lng.toDouble() / 1E5) * 1E6)
-            Log.d("Decode", latlng.toString())
-            poly.add(latlng)
         }
-        return poly
     }
+
+    private fun searchRoute() {
+        mMap.clear()
+        val requestRoute =
+            RequestRoute(
+                start_latitude!!,
+                start_longitude!!,
+                end_latitude!!,
+                end_longitude!!
+            )
+        NetworkCore.getNetworkCore<BEABLETOAPI>()
+            .requestAdmin(
+                SharedPreferenceController.getAuthorization(this), requestRoute
+            )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                clear()
+                init()
+                for (ps in response.paths.indices) {
+                    var time = 0
+                    var walk_time = 0
+                    var sub_time: Int
+                    route_detail_list[ps].add(
+                        RouteDetail(
+                            -1,
+                            0,
+                            et_search_start.text.toString(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        )
+                    )
+                    for (p in response.paths[ps].path) {
+                        sub_time = 0
+                        if (p.time != null) {
+                            sub_time = p.time.value
+                            time += sub_time
+                            if (p.type == "walk") {
+                                walk_time += sub_time
+                            }
+                        }
+                        if (p.type == "walk") {
+                            for (ws in p.walk_seq) {
+                                latitude_list[ps].add(ws.start_x!!)
+                                longitude_list[ps].add(ws.start_y!!)
+                                latitude_list[ps].add(ws.end_x!!)
+                                longitude_list[ps].add(ws.end_y!!)
+                                slope_list[ps].add(ws.slope)
+                            }
+                            route_detail_list[ps].add(
+                                RouteDetail(
+                                    0,
+                                    sub_time,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                )
+                            )
+                        } else if (p.type == "bus") {
+                            bus_latitude_list[ps].add(p.bus_start_x!!)
+                            bus_longitude_list[ps].add(p.bus_start_y!!)
+                            bus_latitude_list[ps].add(p.bus_end_x!!)
+                            bus_longitude_list[ps].add(p.bus_end_y!!)
+                            bus_poly_list[ps].add(p.bus_poly!!)
+                            route_detail_list[ps].add(
+                                RouteDetail(
+                                    1,
+                                    sub_time,
+                                    p.departure,
+                                    p.arrival,
+                                    p.bus_line,
+                                    null,
+                                    p.bus_height,
+                                    p.bus_area,
+                                    p.color
+                                )
+                            )
+                        } else if (p.type == "train") {
+                            train_latitude_list[ps].add(p.train_start_x!!)
+                            train_longitude_list[ps].add(p.train_start_y!!)
+                            train_latitude_list[ps].add(p.train_end_x!!)
+                            train_longitude_list[ps].add(p.train_end_y!!)
+                            train_poly_list[ps].add(p.train_poly!!)
+                            route_detail_list[ps].add(
+                                RouteDetail(
+                                    2,
+                                    sub_time,
+                                    p.departure,
+                                    p.arrival,
+                                    p.train_line,
+                                    p.walk_sub,
+                                    null,
+                                    null,
+                                    p.color
+                                )
+                            )
+                        }
+                    }
+                    route_detail_list[ps].add(
+                        RouteDetail(
+                            -1,
+                            0,
+                            et_search_end.text.toString(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        )
+                    )
+                    walk_time_list.add(walk_time)
+                    time_list.add(time)
+                }
+                Log.d("time_list", time_list.toString())
+
+                for (i in time_list.indices) {
+                    val route_fragment = RouteFragment()
+                    val bundle = Bundle()
+                    bundle.putSerializable(
+                        "route_info",
+                        Route(
+                            time_list[i],
+                            walk_time_list[i],
+                            bus_poly_list[i].size > 1,
+                            train_poly_list[i].size > 1,
+                            route_detail_list[i]
+                        )
+                    )
+                    route_fragment.arguments = bundle
+                    route_pager_adapter!!.addItem(route_fragment)
+                }
+                route_pager_adapter!!.notifyDataSetChanged()
+                drawPolyLine(0)
+                adjustCamera()
+            }, {
+                Log.d("SSibal_Error", Log.getStackTraceString(it))
+            })
+    }
+
+    private fun init() {
+        for (x in 0 until 5) {
+            latitude_list.add(mutableListOf(0.0F))
+            longitude_list.add(mutableListOf(0.0F))
+            slope_list.add(mutableListOf(0))
+            bus_latitude_list.add(mutableListOf(0.0F))
+            bus_longitude_list.add(mutableListOf(0.0F))
+            bus_poly_list.add(mutableListOf(""))
+            train_latitude_list.add(mutableListOf(0.0F))
+            train_longitude_list.add(mutableListOf(0.0F))
+            train_poly_list.add(mutableListOf(""))
+            route_detail_list = MutableList(5) { arrayListOf<RouteDetail>() }
+        }
+    }
+
+    private fun clear() {
+        route_pager_adapter!!.clear()
+        route_detail_list.clear()
+        latitude_list.clear()
+        longitude_list.clear()
+        latitude_list.clear()
+        longitude_list.clear()
+        slope_list.clear()
+        bus_latitude_list.clear()
+        bus_longitude_list.clear()
+        bus_latitude_list.clear()
+        bus_longitude_list.clear()
+        bus_poly_list.clear()
+        train_latitude_list.clear()
+        train_longitude_list.clear()
+        train_latitude_list.clear()
+        train_longitude_list.clear()
+        train_poly_list.clear()
+        walk_time_list.clear()
+        time_list.clear()
+    }
+
+    /*
+    inner class SetIntent: AsyncTask<Intent, Void, LatLng>() {
+        override fun doInBackground(vararg params: String?): LatLng {
+            when(params[0] == "start"){
+
+            }
+            start_latitude = data.getFloatExtra("research_latitude", 0.0F)
+            start_longitude = data.getFloatExtra("research_longitude", 0.0F)
+            return bitmap!!
+        }
+
+        override fun onPostExecute(result: Any) {
+            iv_photo.setImageBitmap(result)
+        }
+    }
+
+     */
 }

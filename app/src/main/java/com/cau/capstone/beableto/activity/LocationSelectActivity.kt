@@ -36,10 +36,15 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
     var item_touch: Boolean = true
     private val SELECT_LOCATION_REQUEST = 9876
     private var location_select_pager_adapter: LocationSelectPagerAdapter? = null
+    private var type_intent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_location)
+
+        if(intent.hasExtra("type")){
+            type_intent = intent.getStringExtra("type")
+        }
 
         val mapFragment =
             supportFragmentManager.findFragmentById(R.id.map_select_location) as SupportMapFragment
@@ -66,15 +71,25 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (child != null) {
                     if (e.action == MotionEvent.ACTION_UP && item_touch) {
                         val position = rv.getChildAdapterPosition(child)
-                        recyclerview_select_location.visibility = View.GONE
-                        //recyclerview_select_location.visibility = View.VISIBLE
-                        viewpager_select_location.visibility = View.VISIBLE
-                        viewpager_select_location.currentItem = position
-                        val selected_location = LatLng(
-                            list[position].latitude.toDouble(),
-                            list[position].longitude.toDouble()
-                        )
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selected_location, 18.0F))
+                        if(type_intent != null){
+                            val intent = Intent()
+                            intent.putExtra("research_latitude", list[position].latitude)
+                            intent.putExtra("research_longitude", list[position].longitude)
+                            intent.putExtra("research_name", list[position].name)
+                            intent.putExtra("research_type", type_intent)
+                            setResult(Activity.RESULT_OK, intent)
+                            finish()
+                        } else{
+                            recyclerview_select_location.visibility = View.GONE
+                            //recyclerview_select_location.visibility = View.VISIBLE
+                            viewpager_select_location.visibility = View.VISIBLE
+                            viewpager_select_location.currentItem = position
+                            val selected_location = LatLng(
+                                list[position].latitude.toDouble(),
+                                list[position].longitude.toDouble()
+                            )
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selected_location, 18.0F))
+                        }
                     } else if (e.action == MotionEvent.ACTION_DOWN) {
                         item_touch = true
                     }

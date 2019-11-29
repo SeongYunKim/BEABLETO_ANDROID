@@ -45,7 +45,7 @@ class LocationSelectFragment : Fragment() {
             intent.putExtra("latitude", location_info!!.latitude)
             intent.putExtra("longitude", location_info!!.longitude)
             intent.putExtra("name", location_info!!.name)
-            intent.putExtra("type", "end")
+            intent.putExtra("type", "end_first")
             startActivity(intent)
         }
         return view

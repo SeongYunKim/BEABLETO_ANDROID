@@ -1,5 +1,6 @@
 package com.cau.capstone.beableto.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -17,11 +18,18 @@ import kotlinx.android.synthetic.main.activity_src_dest_search.*
 
 class AutoSuggestActivity : AppCompatActivity() {
 
+    private var RESEARCH = 13579
     var auto_suggest_adapter: PlaceAutoSuggestAdapter? = null
     var recent_search_adapter: RecentSearchAdapter? = null
+    private var type_intent: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_src_dest_search)
+
+        if(intent.hasExtra("type")){
+            type_intent = intent.getStringExtra("type")
+        }
 
         auto_suggest_adapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_list_item_1)
         autocomplete_listview.adapter = auto_suggest_adapter
@@ -63,11 +71,19 @@ class AutoSuggestActivity : AppCompatActivity() {
         )
 
         autocomplete_listview.setOnItemClickListener { parent, view, position, id ->
-            val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
             val input = parent.getItemAtPosition(position) as String
-            intent.putExtra("input", input)
-            startActivity(intent)
-            finish()
+            if (type_intent == null) {
+                val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                intent.putExtra("input", input)
+                startActivity(intent)
+                finish()
+            } else {
+                val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                intent.putExtra("input", input)
+                intent.putExtra("type", type_intent)
+                startActivityForResult(intent, RESEARCH)
+            }
+
         }
 
         recyclerview_recent_search.addOnItemTouchListener(object :
@@ -77,11 +93,19 @@ class AutoSuggestActivity : AppCompatActivity() {
                 if (child != null) {
                     if (e.action == MotionEvent.ACTION_UP) {
                         val position = rv.getChildAdapterPosition(child)
-                        val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
-                        intent.putExtra("input", SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position])
-                        intent.putExtra("position", position)
-                        startActivity(intent)
-                        finish()
+                        if (type_intent == null) {
+                            val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                            intent.putExtra("input", SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position])
+                            intent.putExtra("position", position)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                            intent.putExtra("input", SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position])
+                            intent.putExtra("position", position)
+                            intent.putExtra("type", type_intent)
+                            startActivityForResult(intent, RESEARCH)
+                        }
                     }
                 }
                 return false
@@ -92,6 +116,24 @@ class AutoSuggestActivity : AppCompatActivity() {
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
         })
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RESEARCH && resultCode == Activity.RESULT_OK && data != null) {
+            val intent = Intent()
+            if (data.hasExtra("research_type")) {
+                intent.putExtra("research_latitude", data.getFloatExtra("research_latitude", 0.0F))
+                intent.putExtra("research_longitude", data.getFloatExtra("research_longitude", 0.0F))
+                intent.putExtra("research_name", data.getStringExtra("research_name"))
+                intent.putExtra("research_type", data.getStringExtra("research_type"))
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
+        } else {
+
+        }
+    }
+
 
     /*
     override fun onResume() {
