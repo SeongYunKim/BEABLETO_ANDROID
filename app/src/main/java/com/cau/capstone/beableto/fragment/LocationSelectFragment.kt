@@ -39,6 +39,14 @@ class LocationSelectFragment : Fragment() {
         else if (slope == 2)
             view.vp_location_slope.text = "계단"
 
+        view.btn_start.setOnClickListener {
+            val intent = Intent(activity, ShowRouteActivity::class.java)
+            intent.putExtra("latitude", location_info!!.latitude)
+            intent.putExtra("longitude", location_info!!.longitude)
+            intent.putExtra("name", location_info!!.name)
+            intent.putExtra("type", "start_first")
+            startActivity(intent)
+        }
 
         view.btn_end.setOnClickListener {
             val intent = Intent(activity, ShowRouteActivity::class.java)

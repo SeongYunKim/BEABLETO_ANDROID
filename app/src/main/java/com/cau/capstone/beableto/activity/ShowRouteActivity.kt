@@ -64,7 +64,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         val type = intent.getStringExtra("type")
         val location_name = intent.getStringExtra("name")
 
-        if (type == "start") {
+        if (type == "start_first") {
             start_latitude = latitude!!
             start_longitude = longitude!!
             et_search_start.setText(location_name)
@@ -166,7 +166,9 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun mapLoadedCallBack() {
         mMap.setOnMapLoadedCallback {
-            searchRoute()
+            if(end_latitude != null){
+                searchRoute()
+            }
         }
     }
 
@@ -288,7 +290,9 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 ll_route_detail.visibility = View.GONE
                 rl_select_route.visibility = View.VISIBLE
-                searchRoute()
+                if(end_latitude != null) {
+                    searchRoute()
+                }
             }
         } else {
 
