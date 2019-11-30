@@ -64,12 +64,17 @@ interface BEABLETOAPI {
         @Body body: RequestRoute
     ): Single<ResponseAdmin>
 
-    //TODO URL 입력
-    @POST("/")
+    @POST("/information/savepose/")
     fun requestRegisterRealTimeLocation(
         @Header("Authorization") authorization: String?,
         @Body body: RequestRegisterRealTimeLocation
     ): Completable
+
+    @POST("/information/getpose/")
+    fun requestRealTimeLocation(
+        @Header("Authorization") authorization: String?,
+        @Body body: RequestRealTimeLocation
+    ): Single<ResponseRealTimeLocation>
 
     @POST("/information/getlocation/")
     fun requestLocationSearch(
