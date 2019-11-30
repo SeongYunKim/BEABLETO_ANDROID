@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.activity_register_route.*
 
 class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private val LOCATION_SEARCH = 54809
     private val REGISTER_ROAD = 1234
     private lateinit var mMap: GoogleMap
     private lateinit var lastLocation: Location
@@ -163,6 +164,13 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
             val slopeInfoFragment = SlopeInfoFragment(this)
             slopeInfoFragment.show()
         }
+
+
+        et_route_search1.setOnClickListener {
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            intent.putExtra("type", "start")
+            startActivityForResult(intent, LOCATION_SEARCH)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -182,6 +190,20 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         } else {
 
+        }
+
+        if (requestCode == LOCATION_SEARCH && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("research_latitude")) {
+                mMap!!.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            data.getFloatExtra("research_latitude", 0.0f).toDouble(),
+                            data.getFloatExtra("research_longitude", 0.0f).toDouble()
+                        ),
+                        18.0F
+                    )
+                )
+            }
         }
     }
 

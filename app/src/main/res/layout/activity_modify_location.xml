@@ -89,10 +89,11 @@
                     android:layout_marginLeft="7dp"
                     android:layout_toRightOf="@id/ic_magnify"
                     android:background="@null"
+                    android:focusable="false"
                     android:hint="장소 찾기"
                     android:imeOptions="actionSearch"
-                    android:maxLines="1"
                     android:inputType="text"
+                    android:maxLines="1"
                     android:textColor="@color/colorBlack"
                     android:textSize="17sp" />
             </RelativeLayout>

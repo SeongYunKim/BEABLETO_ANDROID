@@ -42,7 +42,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_location)
 
-        if(intent.hasExtra("type")){
+        if (intent.hasExtra("type")) {
             type_intent = intent.getStringExtra("type")
         }
 
@@ -71,7 +71,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (child != null) {
                     if (e.action == MotionEvent.ACTION_UP && item_touch) {
                         val position = rv.getChildAdapterPosition(child)
-                        if(type_intent != null){
+                        if (type_intent != null) {
                             val intent = Intent()
                             intent.putExtra("research_latitude", list[position].latitude)
                             intent.putExtra("research_longitude", list[position].longitude)
@@ -79,7 +79,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                             intent.putExtra("research_type", type_intent)
                             setResult(Activity.RESULT_OK, intent)
                             finish()
-                        } else{
+                        } else {
                             recyclerview_select_location.visibility = View.GONE
                             //recyclerview_select_location.visibility = View.VISIBLE
                             viewpager_select_location.visibility = View.VISIBLE
@@ -88,7 +88,12 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                                 list[position].latitude.toDouble(),
                                 list[position].longitude.toDouble()
                             )
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selected_location, 18.0F))
+                            mMap.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    selected_location,
+                                    18.0F
+                                )
+                            )
                         }
                     } else if (e.action == MotionEvent.ACTION_DOWN) {
                         item_touch = true
@@ -122,13 +127,18 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.addMarker(MarkerOptions().position(selected_location).title(list[position].name))
             }
         })
+
+        et_location_select_search.setOnClickListener {
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onBackPressed() {
         if (viewpager_select_location.visibility == View.VISIBLE) {
             viewpager_select_location.visibility = View.GONE
             recyclerview_select_location.visibility = View.VISIBLE
-        } else{
+        } else {
             finish()
         }
     }
@@ -194,7 +204,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode ==  SELECT_LOCATION_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == SELECT_LOCATION_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("slope")) {
                 list[data.getIntExtra("position", 0)].slope = data.getIntExtra("slope", 0)
                 location_select_pager_adapter!!.notifyDataSetChanged()

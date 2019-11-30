@@ -43,6 +43,7 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     private var latitude: Float? = null
     private var longitude: Float? = null
     private var address: String? = null
+    private val LOCATION_SEARCH = 54809
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +72,12 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this@ModifyLocationActivity, "위치명을 입력해 주세요.", Toast.LENGTH_SHORT)
                     .show()
             }
+        }
+
+        et_modify_place_search.setOnClickListener {
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            intent.putExtra("type", "start")
+            startActivityForResult(intent, LOCATION_SEARCH)
         }
     }
 
@@ -288,5 +295,22 @@ class ModifyLocationActivity : AppCompatActivity(), OnMapReadyCallback {
             e.printStackTrace()
         }
         return photoAddress
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == LOCATION_SEARCH && resultCode == Activity.RESULT_OK && data != null) {
+            if (data.hasExtra("research_latitude")) {
+                mMap!!.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            data.getFloatExtra("research_latitude", 0.0f).toDouble(),
+                            data.getFloatExtra("research_longitude", 0.0f).toDouble()
+                        ),
+                        18.0F
+                    )
+                )
+            }
+        }
     }
 }
