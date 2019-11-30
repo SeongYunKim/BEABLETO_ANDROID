@@ -90,14 +90,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivityForResult(intent, SETTING)
         }
 
-        /////////////////////////////////////////////////////////////////////////////
-        drawer_admin.setOnClickListener {
-            val intent = Intent(this, PointRankingActivity::class.java)
+        drawer_mypage.setOnClickListener {
+            val intent = Intent(this, MyPageActivity::class.java)
             startActivity(intent)
         }
-        /////////////////////////////////////////////////////////////////////////////
 
-        drawer_mypage.setOnClickListener {
+        drawer_record.setOnClickListener {
             val intent = Intent(this, RecordActivity::class.java)
             startActivity(intent)
         }
