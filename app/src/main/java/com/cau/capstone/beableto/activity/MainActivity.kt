@@ -268,6 +268,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     vp_main_address.text = p0.location_address
                     location_x = p0.latitude.toFloat()
                     location_y = p0.longitude.toFloat()
+                    mMap!!.animateCamera(
+                        CameraUpdateFactory.newLatLng(
+                            LatLng(location_x.toDouble(), location_y.toDouble())
+                        )
+                    )
                     when (p0.location_slope) {
                         0 -> {
                             vp_main_slope.text = "경사 완만"
