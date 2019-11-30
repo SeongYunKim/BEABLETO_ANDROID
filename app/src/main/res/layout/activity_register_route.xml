@@ -158,16 +158,30 @@
                 android:layout_marginBottom="13dp"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="90dp"
+                <LinearLayout
+                    android:layout_width="110dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="20dp"
                     android:gravity="center_vertical"
-                    android:text="도로 경사"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="도로 경사"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/btn_info"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginLeft="5dp"
+                        android:src="@drawable/ic_info" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/layout_road_none"

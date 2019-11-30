@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat.setBackgroundTintList
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.fragment.SlopeInfoFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -156,6 +157,11 @@ class RegisterRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this@RegisterRouteActivity, "도로 경사를 선택해 주세요.", Toast.LENGTH_SHORT)
                     .show()
             }
+        }
+
+        btn_info.setOnClickListener {
+            val slopeInfoFragment = SlopeInfoFragment(this)
+            slopeInfoFragment.show()
         }
     }
 
