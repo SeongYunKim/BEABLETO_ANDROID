@@ -11,8 +11,9 @@ import com.cau.capstone.beableto.activity.ShowRouteActivity
 import com.cau.capstone.beableto.data.Location
 import kotlinx.android.synthetic.main.viewpage_location.view.*
 
-class LocationSelectFragment : Fragment() {
+class LocationSelectFragment(type: Boolean) : Fragment() {
     private var location_info: Location? = null
+    private var type = type
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,12 @@ class LocationSelectFragment : Fragment() {
         if (location_info!!.rate == null)
             location_info!!.rate = 5.0F
         view.vp_location_rating.text = "평점: " + location_info!!.rate.toString() + " / 5.0"
+        if(type){
+            view.vp_locationi_slope_info.visibility = View.GONE
+            view.vp_location_slope.visibility = View.GONE
+        } else{
+            view.vp_location_rating.visibility = View.GONE
+        }
         if (slope == null)
             view.vp_location_slope.text = "정보 없음"
         else if (slope == 0)

@@ -22,13 +22,17 @@ class AutoSuggestActivity : AppCompatActivity() {
     var auto_suggest_adapter: PlaceAutoSuggestAdapter? = null
     var recent_search_adapter: RecentSearchAdapter? = null
     private var type_intent: String? = null
+    private var limit_intent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_src_dest_search)
 
-        if(intent.hasExtra("type")){
+        if (intent.hasExtra("type")) {
             type_intent = intent.getStringExtra("type")
+        }
+        if (intent.hasExtra("limit")) {
+            limit_intent = intent.getStringExtra("limit")
         }
 
         auto_suggest_adapter = PlaceAutoSuggestAdapter(this, android.R.layout.simple_list_item_1)
@@ -72,8 +76,13 @@ class AutoSuggestActivity : AppCompatActivity() {
 
         autocomplete_listview.setOnItemClickListener { parent, view, position, id ->
             val input = parent.getItemAtPosition(position) as String
-            if (type_intent == null) {
+            if (type_intent == null && limit_intent == null) {
                 val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                intent.putExtra("input", input)
+                startActivity(intent)
+                finish()
+            } else if (limit_intent != null) {
+                val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity2::class.java)
                 intent.putExtra("input", input)
                 startActivity(intent)
                 finish()
@@ -94,14 +103,32 @@ class AutoSuggestActivity : AppCompatActivity() {
                     if (e.action == MotionEvent.ACTION_UP) {
                         val position = rv.getChildAdapterPosition(child)
                         if (type_intent == null) {
-                            val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
-                            intent.putExtra("input", SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position])
+                            val intent =
+                                Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                            intent.putExtra(
+                                "input",
+                                SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position]
+                            )
+                            intent.putExtra("position", position)
+                            startActivity(intent)
+                            finish()
+                        } else if (limit_intent != null) {
+                            val intent =
+                                Intent(this@AutoSuggestActivity, LocationSelectActivity2::class.java)
+                            intent.putExtra(
+                                "input",
+                                SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position]
+                            )
                             intent.putExtra("position", position)
                             startActivity(intent)
                             finish()
                         } else {
-                            val intent = Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
-                            intent.putExtra("input", SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position])
+                            val intent =
+                                Intent(this@AutoSuggestActivity, LocationSelectActivity::class.java)
+                            intent.putExtra(
+                                "input",
+                                SharedPreferenceController.getRecentSearchWord(this@AutoSuggestActivity)[position]
+                            )
                             intent.putExtra("position", position)
                             intent.putExtra("type", type_intent)
                             startActivityForResult(intent, RESEARCH)
@@ -123,7 +150,10 @@ class AutoSuggestActivity : AppCompatActivity() {
             val intent = Intent()
             if (data.hasExtra("research_type")) {
                 intent.putExtra("research_latitude", data.getFloatExtra("research_latitude", 0.0F))
-                intent.putExtra("research_longitude", data.getFloatExtra("research_longitude", 0.0F))
+                intent.putExtra(
+                    "research_longitude",
+                    data.getFloatExtra("research_longitude", 0.0F)
+                )
                 intent.putExtra("research_name", data.getStringExtra("research_name"))
                 intent.putExtra("research_type", data.getStringExtra("research_type"))
                 setResult(Activity.RESULT_OK, intent)

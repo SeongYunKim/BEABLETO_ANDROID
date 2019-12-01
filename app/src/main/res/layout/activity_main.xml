@@ -106,7 +106,7 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="6dp"
                 android:backgroundTint="@color/colorPrimary"
-                android:src="@drawable/ic_bus"
+                android:src="@drawable/ic_search2"
                 android:visibility="invisible"
                 app:elevation="6dp"
                 app:fabCustomSize="75dp"

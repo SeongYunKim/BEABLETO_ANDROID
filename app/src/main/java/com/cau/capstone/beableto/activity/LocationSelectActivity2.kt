@@ -3,9 +3,9 @@ package com.cau.capstone.beableto.activity
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
@@ -17,8 +17,11 @@ import androidx.viewpager.widget.ViewPager
 import com.cau.capstone.beableto.Adapter.LocationSelectAdapter
 import com.cau.capstone.beableto.Adapter.LocationSelectPagerAdapter
 import com.cau.capstone.beableto.R
+import com.cau.capstone.beableto.api.BEABLETOAPI
+import com.cau.capstone.beableto.api.NetworkCore
 import com.cau.capstone.beableto.api.PlaceAPI
 import com.cau.capstone.beableto.data.Location
+import com.cau.capstone.beableto.data.RequestLocationSearch
 import com.cau.capstone.beableto.fragment.LocationSelectFragment
 import com.cau.capstone.beableto.repository.SharedPreferenceController
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,10 +30,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_select_location.*
 import java.util.ArrayList
 
-class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
+class LocationSelectActivity2 : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private val placeAPI = PlaceAPI()
@@ -169,8 +174,60 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                     finish()
                 }
             } else {
-                list = placeAPI.search_place_list(input)
+                NetworkCore.getNetworkCore<BEABLETOAPI>()
+                    .requestLocationSearch(
+                        SharedPreferenceController.getAuthorization(this),
+                        RequestLocationSearch(input!!)
+                    )
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ response ->
+                        Log.d("ResponseXXX", response.toString())
+                        for (marker in response.markers) {
+                            list.add(
+                                Location(
+                                    marker.x_axis,
+                                    marker.y_axis,
+                                    marker.address,
+                                    marker.location_name,
+                                    5.0f,
+                                    "",
+                                    null,
+                                    marker.slope
+                                )
+                            )
+                        }
+                        val adapter = LocationSelectAdapter(list, this)
+                        recyclerview_select_location.layoutManager = LinearLayoutManager(this)
+                        recyclerview_select_location.adapter = adapter
+                        recyclerview_select_location.addItemDecoration(
+                            DividerItemDecoration(
+                                this,
+                                DividerItemDecoration.VERTICAL
+                            )
+                        )
+                        val first_location =
+                            LatLng(list[0].latitude.toDouble(), list[0].longitude.toDouble())
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
+                        mMap.addMarker(MarkerOptions().position(first_location).title(list[0].name))
+
+                        location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
+                        viewpager_select_location.adapter = location_select_pager_adapter
+                        for (i in list) {
+                            val location_select_fragment = LocationSelectFragment(false)
+                            val bundle = Bundle()
+                            bundle.putSerializable("location_info", i)
+                            //bundle.putString("name", i.name)
+                            location_select_fragment.arguments = bundle
+                            location_select_pager_adapter!!.addItem(location_select_fragment)
+                        }
+                        location_select_pager_adapter!!.notifyDataSetChanged()
+
+                        SharedPreferenceController.setRecentSearchList(this, input!!, list)
+                    }, { except ->
+                    })
             }
+            /*
             while (list.isEmpty()) {
                 Handler().postDelayed({}, 100)
             }
@@ -196,7 +253,7 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
                 viewpager_select_location.adapter = location_select_pager_adapter
                 for (i in list) {
-                    val location_select_fragment = LocationSelectFragment(true)
+                    val location_select_fragment = LocationSelectFragment()
                     val bundle = Bundle()
                     bundle.putSerializable("location_info", i)
                     //bundle.putString("name", i.name)
@@ -208,6 +265,8 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
                 SharedPreferenceController.setRecentSearchList(this, input!!, list)
             }, 1300)
             //ConCatList().execute("")
+
+             */
         }
     }
 
@@ -222,59 +281,4 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             //위치 등록하다가 말았을 경우
         }
     }
-
-    /*
-    inner class ConCatList: AsyncTask<String, Void, ArrayList<Location>>() {
-        override fun doInBackground(vararg params: String?): ArrayList<Location> {
-            var locationList = arrayListOf<Location>()
-            if (intent.hasExtra("position")) {
-                locationList = SharedPreferenceController.getRecentSearchLocation(
-                    mContext!!,
-                    intent.getIntExtra("position", 0)
-                )
-                if (list.isEmpty()) {
-                    Toast.makeText(mContext, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-            } else {
-                locationList = placeAPI.search_place_list(intent_input)
-            }
-            return locationList
-        }
-
-        override fun onPostExecute(result: ArrayList<Location>) {
-            if (result[0].latitude == 1.0F) {
-                Toast.makeText(mContext, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            val adapter = LocationSelectAdapter(result, mContext!!)
-            recyclerview_select_location.layoutManager = LinearLayoutManager(mContext!!)
-            recyclerview_select_location.adapter = adapter
-            recyclerview_select_location.addItemDecoration(
-                DividerItemDecoration(
-                    mContext,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
-            val first_location =
-                LatLng(result[0].latitude.toDouble(), result[0].longitude.toDouble())
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
-            mMap.addMarker(MarkerOptions().position(first_location).title(result[0].name))
-
-            location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
-            viewpager_select_location.adapter = location_select_pager_adapter
-            for (i in result) {
-                val location_select_fragment = LocationSelectFragment()
-                val bundle = Bundle()
-                bundle.putSerializable("location_info", i)
-                //bundle.putString("name", i.name)
-                location_select_fragment.arguments = bundle
-                location_select_pager_adapter!!.addItem(location_select_fragment)
-            }
-            location_select_pager_adapter!!.notifyDataSetChanged()
-
-            SharedPreferenceController.setRecentSearchList(mContext!!, intent_input!!, result)
-        }
-    }
-    */
 }

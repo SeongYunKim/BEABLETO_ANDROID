@@ -124,6 +124,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fab3.setOnClickListener {
             anim()
+            val intent = Intent(this, AutoSuggestActivity::class.java)
+            intent.putExtra("limit", "limit")
+            startActivity(intent)
         }
 
         /*
@@ -618,7 +621,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             fab3.startAnimation(fab_open)
             fab1.isClickable = true
             fab2.isClickable = true
-            fab3.isClickable = false
+            fab3.isClickable = true
             isFabOpen = true
         }
     }
