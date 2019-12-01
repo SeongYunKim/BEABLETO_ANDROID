@@ -1,7 +1,9 @@
 package com.cau.capstone.beableto.activity
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -32,6 +34,8 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private val placeAPI = PlaceAPI()
+    private var mContext: Context? = null
+    private var intent_input: String? = null
     var list: ArrayList<Location> = ArrayList()
     var item_touch: Boolean = true
     private val SELECT_LOCATION_REQUEST = 9876
@@ -41,6 +45,8 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_location)
+        mContext = this
+        intent_input = intent.getStringExtra("input")
 
         if (intent.hasExtra("type")) {
             type_intent = intent.getStringExtra("type")
@@ -168,37 +174,40 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             while (list.isEmpty()) {
                 Handler().postDelayed({}, 100)
             }
-            if (list[0].latitude == 1.0F) {
-                Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            val adapter = LocationSelectAdapter(list, this)
-            recyclerview_select_location.layoutManager = LinearLayoutManager(this)
-            recyclerview_select_location.adapter = adapter
-            recyclerview_select_location.addItemDecoration(
-                DividerItemDecoration(
-                    this,
-                    DividerItemDecoration.VERTICAL
+            Handler().postDelayed({
+                if (list[0].latitude == 1.0F) {
+                    Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                val adapter = LocationSelectAdapter(list, this)
+                recyclerview_select_location.layoutManager = LinearLayoutManager(this)
+                recyclerview_select_location.adapter = adapter
+                recyclerview_select_location.addItemDecoration(
+                    DividerItemDecoration(
+                        this,
+                        DividerItemDecoration.VERTICAL
+                    )
                 )
-            )
-            val first_location =
-                LatLng(list[0].latitude.toDouble(), list[0].longitude.toDouble())
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
-            mMap.addMarker(MarkerOptions().position(first_location).title(list[0].name))
+                val first_location =
+                    LatLng(list[0].latitude.toDouble(), list[0].longitude.toDouble())
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
+                mMap.addMarker(MarkerOptions().position(first_location).title(list[0].name))
 
-            location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
-            viewpager_select_location.adapter = location_select_pager_adapter
-            for (i in list) {
-                val location_select_fragment = LocationSelectFragment()
-                val bundle = Bundle()
-                bundle.putSerializable("location_info", i)
-                //bundle.putString("name", i.name)
-                location_select_fragment.arguments = bundle
-                location_select_pager_adapter!!.addItem(location_select_fragment)
-            }
-            location_select_pager_adapter!!.notifyDataSetChanged()
+                location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
+                viewpager_select_location.adapter = location_select_pager_adapter
+                for (i in list) {
+                    val location_select_fragment = LocationSelectFragment()
+                    val bundle = Bundle()
+                    bundle.putSerializable("location_info", i)
+                    //bundle.putString("name", i.name)
+                    location_select_fragment.arguments = bundle
+                    location_select_pager_adapter!!.addItem(location_select_fragment)
+                }
+                location_select_pager_adapter!!.notifyDataSetChanged()
 
-            SharedPreferenceController.setRecentSearchList(this, input!!, list)
+                SharedPreferenceController.setRecentSearchList(this, input!!, list)
+            }, 1300)
+            //ConCatList().execute("")
         }
     }
 
@@ -213,4 +222,59 @@ class LocationSelectActivity : AppCompatActivity(), OnMapReadyCallback {
             //위치 등록하다가 말았을 경우
         }
     }
+
+    /*
+    inner class ConCatList: AsyncTask<String, Void, ArrayList<Location>>() {
+        override fun doInBackground(vararg params: String?): ArrayList<Location> {
+            var locationList = arrayListOf<Location>()
+            if (intent.hasExtra("position")) {
+                locationList = SharedPreferenceController.getRecentSearchLocation(
+                    mContext!!,
+                    intent.getIntExtra("position", 0)
+                )
+                if (list.isEmpty()) {
+                    Toast.makeText(mContext, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            } else {
+                locationList = placeAPI.search_place_list(intent_input)
+            }
+            return locationList
+        }
+
+        override fun onPostExecute(result: ArrayList<Location>) {
+            if (result[0].latitude == 1.0F) {
+                Toast.makeText(mContext, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            val adapter = LocationSelectAdapter(result, mContext!!)
+            recyclerview_select_location.layoutManager = LinearLayoutManager(mContext!!)
+            recyclerview_select_location.adapter = adapter
+            recyclerview_select_location.addItemDecoration(
+                DividerItemDecoration(
+                    mContext,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
+            val first_location =
+                LatLng(result[0].latitude.toDouble(), result[0].longitude.toDouble())
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first_location, 18.0F))
+            mMap.addMarker(MarkerOptions().position(first_location).title(result[0].name))
+
+            location_select_pager_adapter = LocationSelectPagerAdapter(supportFragmentManager)
+            viewpager_select_location.adapter = location_select_pager_adapter
+            for (i in result) {
+                val location_select_fragment = LocationSelectFragment()
+                val bundle = Bundle()
+                bundle.putSerializable("location_info", i)
+                //bundle.putString("name", i.name)
+                location_select_fragment.arguments = bundle
+                location_select_pager_adapter!!.addItem(location_select_fragment)
+            }
+            location_select_pager_adapter!!.notifyDataSetChanged()
+
+            SharedPreferenceController.setRecentSearchList(mContext!!, intent_input!!, result)
+        }
+    }
+    */
 }
