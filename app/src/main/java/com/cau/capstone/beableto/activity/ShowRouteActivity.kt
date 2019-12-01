@@ -36,9 +36,11 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
     private var bus_latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var bus_longitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var bus_poly_list: MutableList<MutableList<String>> = ArrayList()
+    private var bus_color_list: MutableList<MutableList<String>> = ArrayList()
     private var train_latitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var train_longitude_list: MutableList<MutableList<Float>> = ArrayList()
     private var train_poly_list: MutableList<MutableList<String>> = ArrayList()
+    private var train_color_list: MutableList<MutableList<String>> = ArrayList()
     private var slope_list: MutableList<MutableList<Int>> = ArrayList()
     private var route_detail_list = MutableList(5) { arrayListOf<RouteDetail>() }
     private var walk_time_list = arrayListOf<Int>()
@@ -49,6 +51,8 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
     private var start_longitude: Float? = null
     private var end_latitude: Float? = null
     private var end_longitude: Float? = null
+
+    private val pattern = listOf(Dot())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -221,7 +225,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                             busLatLngList[i],
                             busLatLngList[i + 1]
                         ).width(10.0F).color(
-                            Color.BLUE
+                            Color.parseColor(bus_color_list[num][a])
                         )
                     )
                 }
@@ -237,7 +241,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                             trainLatLngList[i],
                             trainLatLngList[i + 1]
                         ).width(10.0F).color(
-                            Color.CYAN
+                            Color.parseColor(train_color_list[num][a])
                         )
                     )
                 }
@@ -370,6 +374,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                             bus_latitude_list[ps].add(p.bus_end_x!!)
                             bus_longitude_list[ps].add(p.bus_end_y!!)
                             bus_poly_list[ps].add(p.bus_poly!!)
+                            bus_color_list[ps].add(p.color!!)
                             route_detail_list[ps].add(
                                 RouteDetail(
                                     1,
@@ -389,6 +394,7 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
                             train_latitude_list[ps].add(p.train_end_x!!)
                             train_longitude_list[ps].add(p.train_end_y!!)
                             train_poly_list[ps].add(p.train_poly!!)
+                            train_color_list[ps].add(p.color!!)
                             route_detail_list[ps].add(
                                 RouteDetail(
                                     2,
@@ -455,9 +461,11 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
             bus_latitude_list.add(mutableListOf(0.0F))
             bus_longitude_list.add(mutableListOf(0.0F))
             bus_poly_list.add(mutableListOf(""))
+            bus_color_list.add(mutableListOf(""))
             train_latitude_list.add(mutableListOf(0.0F))
             train_longitude_list.add(mutableListOf(0.0F))
             train_poly_list.add(mutableListOf(""))
+            train_color_list.add(mutableListOf(""))
             route_detail_list = MutableList(5) { arrayListOf<RouteDetail>() }
         }
     }
@@ -475,11 +483,13 @@ class ShowRouteActivity : AppCompatActivity(), OnMapReadyCallback {
         bus_latitude_list.clear()
         bus_longitude_list.clear()
         bus_poly_list.clear()
+        bus_color_list.clear()
         train_latitude_list.clear()
         train_longitude_list.clear()
         train_latitude_list.clear()
         train_longitude_list.clear()
         train_poly_list.clear()
+        train_color_list.clear()
         walk_time_list.clear()
         time_list.clear()
     }
