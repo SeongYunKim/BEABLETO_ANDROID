@@ -187,7 +187,7 @@ class RecordActivity : AppCompatActivity(), OnMapReadyCallback {
                 }, {
                     Log.d("RealTimeLocation_Register_Error", Log.getStackTraceString(it))
                 })
-            Toast.makeText(applicationContext, "$latitude $longitude", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(applicationContext, "$latitude $longitude", Toast.LENGTH_SHORT).show()
         }
     }
 
